@@ -1,0 +1,6 @@
+-inrc c:\Users\daparker\Documents\David - NI\CVI Projects\Watts Up Series\cvibuild.WUS\Debug\resources.in.rc
+-outrc c:\Users\daparker\Documents\David - NI\CVI Projects\Watts Up Series\cvibuild.WUS\Debug\resources.out.rc
+-inhdef c:\Users\daparker\Documents\David - NI\CVI Projects\Watts Up Series\cvibuild.WUS\Debug\WUS.h.hdefs
+-outdef c:\Users\daparker\Documents\David - NI\CVI Projects\Watts Up Series\cvibuild.WUS\Debug\WUS.dll.defs
+-indefprot c:\Users\daparker\Documents\David - NI\CVI Projects\Watts Up Series\cvibuild.WUS\Debug\WUS.obj.cvidefprots
+-dllName WUS.dll

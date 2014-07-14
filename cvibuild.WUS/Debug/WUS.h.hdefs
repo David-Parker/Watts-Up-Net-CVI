@@ -1,0 +1,32 @@
+[WUS_Initialize]
+Class="Function"
+Prototype="long WUS_Initialize(char *VISAResourceName, unsigned short IDQuery, unsigned short reset, unsigned long *vi);"
+
+[WUS_Close]
+Class="Function"
+Prototype="long WUS_Close(unsigned long vi);"
+
+[WUS_Wait]
+Class="Function"
+Prototype="long WUS_Wait(unsigned long vi);"
+
+[WUS_ErrorQuery]
+Class="Function"
+Prototype="long WUS_ErrorQuery(unsigned long vi, long *errorCode, char *errorMessage);"
+
+[WUS_ErrorMessage]
+Class="Function"
+Prototype="long WUS_ErrorMessage(unsigned long vi, long statusCode, char *errorMessage);"
+
+[WUS_Reset]
+Class="Function"
+Prototype="long WUS_Reset(unsigned long vi);"
+
+[WUS_RevisionQuery]
+Class="Function"
+Prototype="long WUS_RevisionQuery(unsigned long vi, char *instrumentDriverRevision, char *instrumentFirmwareRevision);"
+
+[WUS_SelfTest]
+Class="Function"
+Prototype="long WUS_SelfTest(unsigned long vi, long *selfTestResultCode, char *selfTestResultMessage);"
+

@@ -1,0 +1,11 @@
+LIBRARY WUS
+
+EXPORTS
+WUS_SelfTest
+WUS_RevisionQuery
+WUS_Reset
+WUS_ErrorMessage
+WUS_ErrorQuery
+WUS_Wait
+WUS_Close
+WUS_Initialize
