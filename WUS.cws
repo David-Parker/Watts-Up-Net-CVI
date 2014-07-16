@@ -13,11 +13,11 @@ Number of Projects = 1
 Active Project = 1
 Project 0001 = "WUS.prj"
 Drag Bar Left = 288
-Window Top = 30
-Window Left = 0
-Window Bottom = 943
-Window Right = 1140
-Maximized = True
+Window Top = 41
+Window Left = 191
+Window Bottom = 790
+Window Right = 1494
+Maximized = False
 Maximized Children = True
 Max32 Number Of Errors = 20
 Track Include File Dependencies = True
@@ -30,7 +30,7 @@ Save Changes Before Compiling = "Always"
 Hide Windows = False
 Break At First Statement = False
 Sort Type = "File Name"
-Number of Opened Files = 3
+Number of Opened Files = 4
 Window Confinement Region Enabled = True
 MainColumnWidth = 271
 FileDateColumnWidth = 70
@@ -48,31 +48,31 @@ Batch Build Debug = False
 [File 0001]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.fp"
 File Type = "Function Panel"
-Disk Date = 3488217497
+Disk Date = 3488390772
 In Projects = "1,"
 Window Top = 92
 Window Left = 42
 Window Height = 400
 Window Width = 400
-Window Z-Order = 3
+Window Z-Order = 2
 
 [File 0002]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.c"
 File Type = "CSource"
-Disk Date = 3488217498
+Disk Date = 3488390950
 In Projects = "1,"
-Window Top = 32
-Window Left = 10
-Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,0,0,0,0,349,715,1,0,"
+Window Top = 122
+Window Left = 50
+Source Window State = "1,132,132,132,11,35,11,0,0,80,0,108,0,0,0,23,298,0,309,4,323,715,1,17,"
 
 [File 0003]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.h"
 File Type = "Include"
-Disk Date = 3488217497
+Disk Date = 3488390918
 In Projects = "1,"
 Window Top = 62
 Window Left = 26
-Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,0,0,0,0,349,715,1,0,"
+Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,349,715,1,0,"
 
 [Default Build Config 0001 Debug]
 Generate Browse Info = True

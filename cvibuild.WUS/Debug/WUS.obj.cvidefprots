@@ -1,6 +1,6 @@
 [WUS_Initialize]
 Class="Function"
-Prototype="long WUS_Initialize(char *VISAResourceName, unsigned short IDQuery, unsigned short reset, unsigned long *vi);"
+Prototype="long WUS_Initialize(char *VISAResourceName, unsigned short reset, unsigned long *vi);"
 
 [WUS_Close]
 Class="Function"
@@ -25,6 +25,10 @@ Prototype="long WUS_RevisionQuery(unsigned long vi, char *instrumentDriverRevisi
 [WUS_SelfTest]
 Class="Function"
 Prototype="long WUS_SelfTest(unsigned long vi, long *selfTestResultCode, char *selfTestResultMessage);"
+
+[WUS_ConfigureUserParameters]
+Class="Function"
+Prototype="long WUS_ConfigureUserParameters(unsigned long vi, long rate, long threshold, long currency);"
 
 [WUS_DefaultInstrSetup]
 Class="Function"

@@ -12,7 +12,7 @@
  *
  *      TODO  - Instrument Driver Created.
  ***************************************************************************************/
-#include <utility.h>
+#include <utility.h> // TODO Delete me
 #include <formatio.h>
 #include <visa.h>
 #include <ansi_c.h>
@@ -135,7 +135,7 @@ ViStatus _VI_FUNC  WUS_Initialize (ViRsrc VISAResourceName,
     if (reset)
         CheckErr (WUS_Reset(*vi));
     else  /* - Send Default Instrument Setup --------------------------------- */
-        CheckErr (WUS_DefaultInstrSetup(*vi));
+        CheckErr (WUS_DefaultInstrSetup(*vi));   
 Error:
 	return status;
 }
@@ -232,7 +232,7 @@ ViStatus _VI_FUNC  WUS_Reset (ViSession vi)
     ViStatus status = VI_SUCCESS;
 
     /*  Initialize the instrument to a known state.  */
-    CheckErr (viPrintf(vi, "*RST"));
+    CheckErr (viPrintf(vi, "#I,Z,0;"));
     CheckErr (WUS_DefaultInstrSetup(vi));
     CheckErr (WUS_CheckStatus(vi));
 Error:
@@ -293,6 +293,46 @@ ViStatus _VI_FUNC  WUS_SelfTest (ViSession vi,
 Error:
     return status;		
 }
+
+/***************************************************************************************
+ *Function: WUS_ConfigureUserParameters
+ *Purpose:  Configures the RF PLL loop filter mode for the instrument.
+ ***************************************************************************************/
+ViStatus _VI_FUNC  WUS_ConfigureUserParameters (ViSession vi, 
+                                                ViInt32 rate,
+                                                ViInt32 threshold,
+                                                ViInt32 currency)
+{
+    /*Define local variables.*/
+    ViStatus status = VI_SUCCESS;
+    
+    /*- Check input parameter ranges ----------------------------------------*/
+    CheckParam (WUS_InvalidViInt32Range(rate,0,10),VI_ERROR_PARAMETER2);
+    CheckParam (WUS_InvalidViInt32Range(threshold,0,1999),VI_ERROR_PARAMETER3);
+    CheckParam (WUS_InvalidViInt32Range(currency,0,1),VI_ERROR_PARAMETER4);
+    
+    //printf("Sending Command: #U,W,3,%d,%d,%d;\n",rate*WUS_COST_RATE,threshold,currency);    
+    CheckErr (viPrintf(vi,"#U,W,3,%d,%d,%d;",rate*WUS_COST_RATE,threshold,currency));
+    CheckErr (WUS_CheckStatus(vi));
+
+Error:
+    return status;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*************************************************************************************************/
 /* Function: Boolean Value Out Of Range - ViBoolean                                              */
@@ -369,7 +409,7 @@ ViStatus WUS_CheckStatus (ViSession vi)
     ViStatus    status = VI_SUCCESS;
     ViUInt32    esrValue = 0;
 
-    CheckErr (viQueryf(vi, "*ESR?\n", "%d", &esrValue));
+    //CheckErr (viQueryf(vi, "*ESR?\n", "%d", &esrValue));
 
     /*---------------- Check if any error or message bit was asserted -------*/
     if ((esrValue & WUS_ESR_QUERY_ERROR) != 0)

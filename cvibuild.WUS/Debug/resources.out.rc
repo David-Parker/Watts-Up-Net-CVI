@@ -44,13 +44,15 @@ CVIDLLexports CVIDLLprototypes
    "\n",
    "long WUS_Close(unsigned long vi);"
    "\n",
+   "long WUS_ConfigureUserParameters(unsigned long vi, long rate, long threshold, long currency);"
+   "\n",
    "long WUS_DefaultInstrSetup(unsigned long instrSession);"
    "\n",
    "long WUS_ErrorMessage(unsigned long vi, long statusCode, char *errorMessage);"
    "\n",
    "long WUS_ErrorQuery(unsigned long vi, long *errorCode, char *errorMessage);"
    "\n",
-   "long WUS_Initialize(char *VISAResourceName, unsigned short IDQuery, unsigned short reset, unsigned long *vi);"
+   "long WUS_Initialize(char *VISAResourceName, unsigned short reset, unsigned long *vi);"
    "\n",
    "long WUS_Reset(unsigned long vi);"
    "\n",

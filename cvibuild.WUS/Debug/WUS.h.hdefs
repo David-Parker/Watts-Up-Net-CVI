@@ -1,6 +1,6 @@
 [WUS_Initialize]
 Class="Function"
-Prototype="long WUS_Initialize(char *VISAResourceName, unsigned short IDQuery, unsigned short reset, unsigned long *vi);"
+Prototype="long WUS_Initialize(char *VISAResourceName, unsigned short reset, unsigned long *vi);"
 
 [WUS_Close]
 Class="Function"
@@ -9,6 +9,10 @@ Prototype="long WUS_Close(unsigned long vi);"
 [WUS_Wait]
 Class="Function"
 Prototype="long WUS_Wait(unsigned long vi);"
+
+[WUS_ConfigureUserParameters]
+Class="Function"
+Prototype="long WUS_ConfigureUserParameters(unsigned long vi, long rate, long threshold, long currency);"
 
 [WUS_ErrorQuery]
 Class="Function"

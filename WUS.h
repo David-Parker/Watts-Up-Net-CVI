@@ -51,16 +51,20 @@ extern "C" {
 #define WUS_ESR_DEVICE_DEPENDENT_ERROR                      0x08
 #define WUS_ESR_EXECUTION_ERROR                             0x10
 #define WUS_ESR_COMMAND_ERROR                               0x20
+#define WUS_BAUD_RATE                                       0x1C200
+
+/* Configure User Parameters*/
+#define WUS_COST_RATE                                       1000
+#define printf                                              DebugPrintf // TODO Delete this when done.
 
 
 /***************************************************************************************/
 /*= GLOBAL USER-CALLABLE FUNCTION DECLARATIONS (Exportable Functions) =================*/
 /***************************************************************************************/
 
-ViStatus _VI_FUNC  WUS_Initialize (ViRsrc VISAResourceName, 
-        							   ViBoolean IDQuery, 
-        							   ViBoolean reset, 
-        						       ViSession* vi);
+ViStatus _VI_FUNC  WUS_Initialize (ViRsrc VISAResourceName,  
+        							ViBoolean reset, 
+        							ViSession* vi);
 
 ViStatus _VI_FUNC  WUS_Close (ViSession vi);
 
@@ -73,7 +77,10 @@ ViStatus _VI_FUNC  WUS_Wait (ViSession vi);
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Configure------------------------------------------*/
 /*-------------------------------------------------------------------------------------*/
-
+ViStatus _VI_FUNC  WUS_ConfigureUserParameters (ViSession vi, 
+                                                ViInt32 rate,
+                                                ViInt32 threshold,
+                                                ViInt32 currency);
 
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Low-level------------------------------------------*/
