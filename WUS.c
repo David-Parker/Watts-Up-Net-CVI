@@ -12,6 +12,7 @@
  *
  *      TODO  - Instrument Driver Created.
  ***************************************************************************************/
+#include <utility.h>
 #include <formatio.h>
 #include <visa.h>
 #include <ansi_c.h>
@@ -20,7 +21,7 @@
 /*= DEFINES ===========================================================================*/
 #define WUS_REVISION			 "Rev 1.0, 07/2014, CVI 2012" /*  Instrument driver revision */
 #define WUS_BUFFER_SIZE		     512L         			  	  /*  File I/O buffer size 	     */
-#define WUS_BAUD_RATE			 9600                         /*  Baud Rate                  */
+#define WUS_BAUD_RATE			 115200                         /*  Baud Rate                  */
 #define WUS_BUFFER_SIZE_LARGE    1024L                        /*  Large buffer size          */
 #define WUS_TMO_VALUE            10000                        /*  Timeout Value              */
 
@@ -86,8 +87,7 @@ static ViBoolean WUS_InvalidPtr (void* value);
             instrument driver functions for this instrument.  Generally, you need to 
             call the Initialize function only once at the beginning of an application.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUS_Initialize (ViRsrc VISAResourceName, 
-        							   ViBoolean IDQuery, 
+ViStatus _VI_FUNC  WUS_Initialize (ViRsrc VISAResourceName,
         							   ViBoolean reset, 
         							   ViSession* vi)
 {
@@ -95,19 +95,18 @@ ViStatus _VI_FUNC  WUS_Initialize (ViRsrc VISAResourceName,
 	ViStatus status = VI_SUCCESS;
 	ViSession rmSession = 0;
 	ViUInt16  interface = VI_INTF_ASRL;
-	ViChar rdBuffer[WUS_BUFFER_SIZE];
 
 	/*- Check input parameter ranges ----------------------------------------*/
-	CheckParam (WUS_InvalidViBooleanRange(IDQuery),VI_ERROR_PARAMETER2);
-	CheckParam (WUS_InvalidViBooleanRange(reset),VI_ERROR_PARAMETER3);
-	CheckParam (WUS_InvalidPtr(vi),VI_ERROR_PARAMETER4);
+	CheckParam (WUS_InvalidViBooleanRange(reset),VI_ERROR_PARAMETER2);
+	CheckParam (WUS_InvalidPtr(vi),VI_ERROR_PARAMETER3);
 
 	/*- Open instrument session ---------------------------------------------*/
     CheckErr (viOpenDefaultRM(&rmSession));
     if ((status = viOpen(rmSession, VISAResourceName, VI_NULL, VI_NULL, vi)) < 0) {
+        printf("ERROR at viOpen: %d, Session: %d\n", status, rmSession);
         viClose (rmSession);
         return status;
-	}	
+	}
 	
 	/*- Configure VISA Formatted I/O ----------------------------------------*/
     CheckErr (viSetAttribute(*vi, VI_ATTR_TMO_VALUE,WUS_TMO_VALUE));
@@ -132,14 +131,6 @@ ViStatus _VI_FUNC  WUS_Initialize (ViRsrc VISAResourceName,
         CheckErr (viSetAttribute(*vi, VI_ATTR_ASRL_STOP_BITS,VI_ASRL_STOP_ONE));
     }
 	
-	/*- Identification Query ------------------------------------------------*/
-    if (IDQuery) {
-    	ViChar *queryResponse = "Stanford Research Systems,CG635";
-    	CheckErr (viQueryf(*vi,"*IDN?\n","%256[^\r]",rdBuffer));
-        if ((!strstr(rdBuffer,queryResponse)))
-            CheckErr (VI_ERROR_FAIL_ID_QUERY);
-    }
-
     /*- Reset instrument ----------------------------------------------------*/
     if (reset)
         CheckErr (WUS_Reset(*vi));
