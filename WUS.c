@@ -345,7 +345,7 @@ ViStatus _VI_FUNC  WUS_ConfigureDataLogging (ViSession vi,
         default: strcpy(loggingName,"");
     }
     
-    printf("Sending Command: #L,W,3,%s,0,%d;\n",loggingName,interval);    
+    //printf("Sending Command: #L,W,3,%s,0,%d;\n",loggingName,interval);    
     CheckErr (viPrintf(vi,"#L,W,3,%s,0,%d;\n",loggingName,interval));
     CheckErr (WUS_CheckStatus(vi));
 
@@ -353,7 +353,48 @@ Error:
     return status;
 }
 
+/***************************************************************************************
+ *Function: WUS_ConfigureMemoryFullHandling
+ *Purpose:  Determines how new data will be recorded once the internal memory has filled up.
+ ***************************************************************************************/
+ViStatus _VI_FUNC  WUS_ConfigureMemoryFullHandling (ViSession vi, 
+                                                    ViInt32 policy)
+{
+    /*Define local variables.*/
+    ViStatus status = VI_SUCCESS;
+    
+    /*- Check input parameter ranges ----------------------------------------*/
+    CheckParam (WUS_InvalidViInt32Range(policy,0,2),VI_ERROR_PARAMETER2);
+    
+    printf("Sending Command: #O,W,1,%d;\n",policy);    
+    CheckErr (viPrintf(vi,"#O,W,1,%d;\n",policy));
+    CheckErr (WUS_CheckStatus(vi));
 
+Error:
+    return status;
+}
+
+/***************************************************************************************
+ *Function: WUS_ConfigureItemsToLog
+ *Purpose:  Configures which items will be recorded on the Watts Up internal memory.
+ ***************************************************************************************/
+ViStatus _VI_FUNC  WUS_ConfigureItemsToLog (ViSession vi, 
+                                                    ViInt32 temp)
+{
+    // TODO
+    /*Define local variables.*/
+    ViStatus status = VI_SUCCESS;
+    
+    /*- Check input parameter ranges ----------------------------------------*/
+    CheckParam (WUS_InvalidViInt32Range(temp,0,2),VI_ERROR_PARAMETER2);
+    
+   // printf("Sending Command: #O,W,1,%d;\n",policy);    
+    CheckErr (viPrintf(vi,"#O,W,1,%d;\n",policy));
+    CheckErr (WUS_CheckStatus(vi));
+
+Error:
+    return status;
+}
 
 
 /*************************************************************************************************/

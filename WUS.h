@@ -92,6 +92,12 @@ ViStatus _VI_FUNC  WUS_ConfigureDataLogging (ViSession vi,
                                                 ViInt32 loggingType,
                                                 ViInt32 interval);
 
+ViStatus _VI_FUNC  WUS_ConfigureMemoryFullHandling (ViSession vi, 
+                                                    ViInt32 policy);
+
+ViStatus _VI_FUNC  WUS_ConfigureItemsToLog (ViSession vi, 
+                                                    ViInt32 temp); // TODO
+
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Low-level------------------------------------------*/
 /*-------------------------------------------------------------------------------------*/
