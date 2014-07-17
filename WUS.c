@@ -70,6 +70,7 @@ static ViBoolean WUS_InvalidViBooleanRange (ViBoolean val);
 static ViBoolean WUS_InvalidViInt32Range (ViInt32 val, ViInt32 min, ViInt32 max);
 static ViBoolean WUS_InvalidViReal64Range (ViReal64 val, ViReal64 min, ViReal64 max);
 static ViBoolean WUS_InvalidPtr (void* value);
+static ViBoolean WUS_InvalidPositiveViInt32(ViInt32 val);
 
 
 
@@ -389,11 +390,86 @@ ViStatus _VI_FUNC  WUS_ConfigureItemsToLog (ViSession vi,
     CheckParam (WUS_InvalidViInt32Range(temp,0,2),VI_ERROR_PARAMETER2);
     
    // printf("Sending Command: #O,W,1,%d;\n",policy);    
-    CheckErr (viPrintf(vi,"#O,W,1,%d;\n",policy));
+    CheckErr (viPrintf(vi,"#O,W,1,%d;\n",temp));
     CheckErr (WUS_CheckStatus(vi));
 
 Error:
     return status;
+}
+
+/***************************************************************************************
+ *Function: WUS_ReadMeterData
+ *Purpose:  Reads all the data from the internal meter and stores it in Data.
+ ***************************************************************************************/
+ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi, 
+                                        void* Data)
+{
+
+    /*Define local variables.*/
+    ViStatus status = VI_SUCCESS;
+    ViChar rdBuf[WUS_BUFFER_SIZE];
+    ViInt32 size = 0;
+    ViInt32 i;
+    ViInt32 j;
+
+    viClear(vi);
+    //Delay(1);
+
+    /* Header that contains number of records (size) */
+    CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+    printf("Buffer %s\n", rdBuf);
+
+    /* Gaurantee that we will get all the data */
+    while(rdBuf[1] != 'n') {
+        if(!strcmp(rdBuf,"")) return status;
+        viQueryf(vi,"#D,R,0;","%s",rdBuf);
+    }
+
+    /* Parse the size variable from the header */
+    char * entry;
+    entry = strtok(rdBuf," ,;");
+    while(entry != NULL) {
+        size = atoi(entry);
+        entry = strtok(NULL," ,;");
+    }
+
+    printf("Buffer: %s, Size: %d\n",rdBuf,size);
+
+    /* If there are no records, return */
+    if(size <= 0) return status;
+
+    //ViInt32 readData[18][size];
+
+    for(i = 0; i < size; i++) {
+        CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+        printf("[%d] Record: %s\n",i,rdBuf);
+    }
+
+    
+    
+   // printf("Sending Command: #O,W,1,%d;\n",policy);    
+    //CheckErr (viPrintf(vi,"#O,W,1,%d;\n",temp));
+    CheckErr (WUS_CheckStatus(vi));
+
+Error:
+    return status;
+}
+
+ViStatus _VI_FUNC  WUS_TestCommands (ViSession vi)
+{
+
+ViStatus status = VI_SUCCESS;
+ViChar rdBuf[256];
+
+viClear(vi);
+
+CheckErr(viPrintf(vi,"#V,R,0;"));
+CheckErr(viScanf(vi,"%s",rdBuf));
+//CheckErr(viQueryf(vi,"#V,R,0;","%s",rdBuf));
+printf("Buffer %s\n", rdBuf);
+
+Error:
+    return status; 
 }
 
 
@@ -441,6 +517,11 @@ static ViBoolean WUS_InvalidPtr (void *value)
     return ((value == VI_NULL) ? VI_TRUE : VI_FALSE);
 }
 
+static ViBoolean WUS_InvalidPositiveViInt32(ViInt32 val)
+{
+    return val > 0;
+}
+
 
 /*****************************************************************************/
 /*----------- INSERT INSTRUMENT-DEPENDENT UTILITY ROUTINES HERE -------------*/
@@ -449,7 +530,7 @@ static ViBoolean WUS_InvalidPtr (void *value)
 /*****************************************************************************************************/
 /* Function: Default Instrument Setup                                                                */
 /* Purpose:  This function sends a default setup to the instrument.  This function is called by      */
-/*           the stsg380_reset operation and by the stsg380_init function if the reset option has    */
+/*           the WUS_reset operation and by the WUS_init function if the reset option has    */
 /*           not been selected.  This function is useful for configuring any  instrument settings    */
 /*           that are required by the rest of the  instrument driver functions such as turning       */
 /*           headers ON or OFF or using the long or short form for commands, queries, and data.      */

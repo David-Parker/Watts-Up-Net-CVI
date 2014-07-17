@@ -62,6 +62,7 @@ extern "C" {
 #define WUS_VAL_TCP_LOG						0x02	
 
 #define printf                                              DebugPrintf // TODO Delete this when done.
+ViStatus _VI_FUNC  WUS_TestCommands (ViSession vi); // TODO Delete this prototype
 
 
 /***************************************************************************************/
@@ -97,6 +98,12 @@ ViStatus _VI_FUNC  WUS_ConfigureMemoryFullHandling (ViSession vi,
 
 ViStatus _VI_FUNC  WUS_ConfigureItemsToLog (ViSession vi, 
                                                     ViInt32 temp); // TODO
+
+/*-------------------------------------------------------------------------------------*/
+/*------------------------------------Data---------------------------------------------*/
+/*-------------------------------------------------------------------------------------*/
+ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi, 
+                                        void* Data);
 
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Low-level------------------------------------------*/
