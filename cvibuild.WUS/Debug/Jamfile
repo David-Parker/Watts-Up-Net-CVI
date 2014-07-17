@@ -31,21 +31,6 @@ HDRS = 	"c:\\program files (x86)\\national instruments\\cvi2013\\include"
 	"c:\\ProgramData\\National Instruments\\CVI2013\\bin"
 	"c:\\Program Files (x86)\\National Instruments\\Shared\\CVI\\Bin"
 	;
-include Jamfile_instr ;
 Object "c:\\Users\\daparker\\Documents\\David - NI\\CVI Projects\\Watts Up Series\\cvibuild.WUS\\Debug\\WUS.obj" : "c:\\Users\\daparker\\Documents\\David - NI\\CVI Projects\\Watts Up Series\\WUS.c" ;
 PrjObjects += "c:\\Users\\daparker\\Documents\\David - NI\\CVI Projects\\Watts Up Series\\cvibuild.WUS\\Debug\\WUS.obj" ;
-Object "WUS.h.hdefs" : "c:\\Users\\daparker\\Documents\\David - NI\\CVI Projects\\Watts Up Series\\WUS.h" ;
-PreLinkInputs += resources.in.rc ;
-PreLinkInputs += $(PrjObjects) $(InstrObjects) ;
-PreLinkOutputs += resources.out.rc ;
-PreLinkOutputs += "WUS.dll.defs" ;
-PreLink $(PreLinkOutputs) : $(PreLinkInputs) ;
-Depends "WUS.dll" : "WUS.dll.defs" ;
-Object resources.res : resources.out.rc ;
-Depends resources.res : $(PreLinkOutputs) ;
-Depends resources.res resources.out.rc : $(PrjObjects) $(InstrObjects) ;
-Depends resources.res : "c:\\Users\\daparker\\Documents\\David - NI\\CVI Projects\\Watts Up Series\\cvibuild.WUS\\Debug\\manifest.xml" ;
-MainFromObjects "WUS.dll" : $(PrjObjects) $(InstrObjects) ;
-Depends "WUS.dll" : link_options.txt ;
-Depends "WUS.dll" : resources.res ;
-Depends all : "WUS.dll" ;
+Depends all : $(PrjObjects) ;

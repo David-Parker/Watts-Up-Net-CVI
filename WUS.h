@@ -47,14 +47,20 @@ extern "C" {
 /***************************************************************************************/
 
 /* Defined values for Standard Event Status Register */
-#define WUS_ESR_QUERY_ERROR                                 0x04
-#define WUS_ESR_DEVICE_DEPENDENT_ERROR                      0x08
-#define WUS_ESR_EXECUTION_ERROR                             0x10
-#define WUS_ESR_COMMAND_ERROR                               0x20
-#define WUS_BAUD_RATE                                       0x1C200
+#define WUS_ESR_QUERY_ERROR                                 	0x04
+#define WUS_ESR_DEVICE_DEPENDENT_ERROR                      	0x08
+#define WUS_ESR_EXECUTION_ERROR                             	0x10
+#define WUS_ESR_COMMAND_ERROR                               	0x20
+#define WUS_BAUD_RATE                                       	0x1C200
 
 /* Configure User Parameters*/
-#define WUS_COST_RATE                                       1000
+#define WUS_VAL_COST_RATE					1000
+
+/* Configure Data Logging*/
+#define WUS_VAL_INTERNAL_LOG					0x00
+#define WUS_VAL_EXTERNAL_LOG					0x01
+#define WUS_VAL_TCP_LOG						0x02	
+
 #define printf                                              DebugPrintf // TODO Delete this when done.
 
 
@@ -81,6 +87,10 @@ ViStatus _VI_FUNC  WUS_ConfigureUserParameters (ViSession vi,
                                                 ViInt32 rate,
                                                 ViInt32 threshold,
                                                 ViInt32 currency);
+
+ViStatus _VI_FUNC  WUS_ConfigureDataLogging (ViSession vi, 
+                                                ViInt32 loggingType,
+                                                ViInt32 interval);
 
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Low-level------------------------------------------*/

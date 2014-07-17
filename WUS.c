@@ -296,7 +296,7 @@ Error:
 
 /***************************************************************************************
  *Function: WUS_ConfigureUserParameters
- *Purpose:  Configures the RF PLL loop filter mode for the instrument.
+ *Purpose:  Configures the rate, threshold and currency type for the Watts Up device.
  ***************************************************************************************/
 ViStatus _VI_FUNC  WUS_ConfigureUserParameters (ViSession vi, 
                                                 ViInt32 rate,
@@ -312,24 +312,46 @@ ViStatus _VI_FUNC  WUS_ConfigureUserParameters (ViSession vi,
     CheckParam (WUS_InvalidViInt32Range(currency,0,1),VI_ERROR_PARAMETER4);
     
     //printf("Sending Command: #U,W,3,%d,%d,%d;\n",rate*WUS_COST_RATE,threshold,currency);    
-    CheckErr (viPrintf(vi,"#U,W,3,%d,%d,%d;",rate*WUS_COST_RATE,threshold,currency));
+    CheckErr (viPrintf(vi,"#U,W,3,%d,%d,%d;",rate*WUS_VAL_COST_RATE,threshold,currency));
     CheckErr (WUS_CheckStatus(vi));
 
 Error:
     return status;
 }
 
+/***************************************************************************************
+ *Function: WUS_ConfigureDataLogging
+ *Purpose:  Configure the logging type and the interval rate of the data capture for the Watts Up device.
+ ***************************************************************************************/
+ViStatus _VI_FUNC  WUS_ConfigureDataLogging (ViSession vi, 
+                                                ViInt32 loggingType,
+                                                ViInt32 interval)
+{
+    /*Define local variables.*/
+    ViStatus status = VI_SUCCESS;
+    ViChar loggingName[2];
+    
+    /*- Check input parameter ranges ----------------------------------------*/
+    CheckParam (WUS_InvalidViInt32Range(loggingType,0,2),VI_ERROR_PARAMETER2);
+    CheckParam (WUS_InvalidViInt32Range(interval,0,86400),VI_ERROR_PARAMETER3);
 
+    switch(loggingType) {
+        case WUS_VAL_INTERNAL_LOG: strcpy(loggingName,"I");
+            break;
+        case WUS_VAL_EXTERNAL_LOG: strcpy(loggingName,"E");
+            break;
+        case WUS_VAL_TCP_LOG: strcpy(loggingName,"T");
+            break;
+        default: strcpy(loggingName,"");
+    }
+    
+    printf("Sending Command: #L,W,3,%s,0,%d;\n",loggingName,interval);    
+    CheckErr (viPrintf(vi,"#L,W,3,%s,0,%d;\n",loggingName,interval));
+    CheckErr (WUS_CheckStatus(vi));
 
-
-
-
-
-
-
-
-
-
+Error:
+    return status;
+}
 
 
 
