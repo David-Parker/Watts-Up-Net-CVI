@@ -52,6 +52,7 @@ extern "C" {
 #define WUS_ESR_EXECUTION_ERROR                             	0x10
 #define WUS_ESR_COMMAND_ERROR                               	0x20
 #define WUS_BAUD_RATE                                       	0x1C200
+#define WUS_NUM_RECORDS						0x12
 
 /* Configure User Parameters*/
 #define WUS_VAL_COST_RATE					1000

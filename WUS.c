@@ -71,6 +71,7 @@ static ViBoolean WUS_InvalidViInt32Range (ViInt32 val, ViInt32 min, ViInt32 max)
 static ViBoolean WUS_InvalidViReal64Range (ViReal64 val, ViReal64 min, ViReal64 max);
 static ViBoolean WUS_InvalidPtr (void* value);
 static ViBoolean WUS_InvalidPositiveViInt32(ViInt32 val);
+static void WUS_addRecords(int size, int data[][size], char str[], int index);
 
 
 
@@ -410,19 +411,17 @@ ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi,
     ViChar rdBuf[WUS_BUFFER_SIZE];
     ViInt32 size = 0;
     ViInt32 i;
-    ViInt32 j;
 
     viClear(vi);
-    //Delay(1);
 
     /* Header that contains number of records (size) */
-    CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+    viQueryf(vi,"#D,R,0;","%s",rdBuf);
     printf("Buffer %s\n", rdBuf);
 
     /* Gaurantee that we will get all the data */
     while(rdBuf[1] != 'n') {
-        if(!strcmp(rdBuf,"")) return status;
-        viQueryf(vi,"#D,R,0;","%s",rdBuf);
+        if(!strcmp(rdBuf,"")) return -1;
+       viQueryf(vi,"#D,R,0;","%s",rdBuf);
     }
 
     /* Parse the size variable from the header */
@@ -433,22 +432,18 @@ ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi,
         entry = strtok(NULL," ,;");
     }
 
-    printf("Buffer: %s, Size: %d\n",rdBuf,size);
-
     /* If there are no records, return */
     if(size <= 0) return status;
 
-    //ViInt32 readData[18][size];
+    int readData[WUS_NUM_RECORDS][size];
 
     for(i = 0; i < size; i++) {
-        CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
-        printf("[%d] Record: %s\n",i,rdBuf);
+        viQueryf(vi,"#D,R,0;","%s",rdBuf);
+        WUS_addRecords(size, readData,rdBuf,i);
     }
 
-    
-    
-   // printf("Sending Command: #O,W,1,%d;\n",policy);    
-    //CheckErr (viPrintf(vi,"#O,W,1,%d;\n",temp));
+    Data = &readData;
+
     CheckErr (WUS_CheckStatus(vi));
 
 Error:
@@ -520,6 +515,22 @@ static ViBoolean WUS_InvalidPtr (void *value)
 static ViBoolean WUS_InvalidPositiveViInt32(ViInt32 val)
 {
     return val > 0;
+}
+
+static void WUS_addRecords(int size, int data[][size], char str[], int index) {
+    char * entry;
+    int val = 0;
+    int count = 0;
+    entry = strtok(str," ,;");
+    while(entry != NULL) {
+        /* Only grab the data in between the header info */
+        if(count > 2 && count < 21) {
+            val = atoi(entry);
+            data[count - 3][index] = val;
+        }
+        entry = strtok(NULL," ,;");
+        count++;
+    }
 }
 
 
