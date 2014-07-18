@@ -13,10 +13,10 @@ Number of Projects = 1
 Active Project = 1
 Project 0001 = "WUS.prj"
 Drag Bar Left = 288
-Window Top = 38
-Window Left = 162
-Window Bottom = 740
-Window Right = 1299
+Window Top = 189
+Window Left = 165
+Window Bottom = 891
+Window Right = 1302
 Maximized = False
 Maximized Children = True
 Max32 Number Of Errors = 20
@@ -48,22 +48,22 @@ Batch Build Debug = False
 [File 0001]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.fp"
 File Type = "Function Panel"
-Disk Date = 3488554287
+Disk Date = 3488563622
 In Projects = "1,"
 Window Top = 92
 Window Left = 42
 Window Height = 400
 Window Width = 400
-Window Z-Order = 1
+Window Z-Order = 2
 
 [File 0002]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.c"
 File Type = "CSource"
-Disk Date = 3488554911
+Disk Date = 3488563529
 In Projects = "1,"
 Window Top = 122
 Window Left = 50
-Source Window State = "1,132,132,132,11,35,11,0,0,80,0,108,0,0,0,23,426,0,404,19,323,715,1,17,"
+Source Window State = "1,422,423,422,14,27,14,0,0,80,0,108,0,0,0,23,410,0,421,10,323,715,1,17,"
 
 [File 0003]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.h"

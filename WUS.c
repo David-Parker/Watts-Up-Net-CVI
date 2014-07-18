@@ -22,7 +22,7 @@
 #define WUS_REVISION			 "Rev 1.0, 07/2014, CVI 2012" /*  Instrument driver revision */
 #define WUS_BUFFER_SIZE		     512L         			  	  /*  File I/O buffer size 	     */
 #define WUS_BAUD_RATE			 115200                         /*  Baud Rate                  */
-#define WUS_BUFFER_SIZE_LARGE    1024L                        /*  Large buffer size          */
+#define WUS_BUFFER_SIZE_LARGE    4096L                        /*  Large buffer size          */
 #define WUS_TMO_VALUE            10000                        /*  Timeout Value              */
 
 /*= MACROS ============================================================================*/
@@ -71,7 +71,7 @@ static ViBoolean WUS_InvalidViInt32Range (ViInt32 val, ViInt32 min, ViInt32 max)
 static ViBoolean WUS_InvalidViReal64Range (ViReal64 val, ViReal64 min, ViReal64 max);
 static ViBoolean WUS_InvalidPtr (void* value);
 static ViBoolean WUS_InvalidPositiveViInt32(ViInt32 val);
-static void WUS_addRecords(int size, int data[][size], char str[], int index);
+static ViStatus WUS_addRecords(int size, int data[][size], char str[], int index);
 
 
 
@@ -521,7 +521,9 @@ static ViBoolean WUS_InvalidPositiveViInt32(ViInt32 val)
     return val > 0;
 }
 
-static void WUS_addRecords(int size, int data[][size], char str[], int index) {
+static ViStatus WUS_addRecords(int size, int data[][size], char str[], int index) {
+    ViStatus status = VI_SUCCESS;
+
     char * entry;
     int val = 0;
     int count = 0;
@@ -535,6 +537,9 @@ static void WUS_addRecords(int size, int data[][size], char str[], int index) {
         entry = strtok(NULL," ,;");
         count++;
     }
+
+Error:
+    return status;
 }
 
 
