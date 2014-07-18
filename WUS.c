@@ -403,7 +403,8 @@ Error:
  *Purpose:  Reads all the data from the internal meter and stores it in Data.
  ***************************************************************************************/
 ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi, 
-                                        void* Data)
+                                        void* Data,
+                                        ViInt32* RecordNum)
 {
 
     /*Define local variables.*/
@@ -416,12 +417,11 @@ ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi,
 
     /* Header that contains number of records (size) */
     viQueryf(vi,"#D,R,0;","%s",rdBuf);
-    printf("Buffer %s\n", rdBuf);
 
     /* Gaurantee that we will get all the data */
     while(rdBuf[1] != 'n') {
-        if(!strcmp(rdBuf,"")) return -1;
-       viQueryf(vi,"#D,R,0;","%s",rdBuf);
+        if(!strcmp(rdBuf,"")) return status;
+        viQueryf(vi,"#D,R,0;","%s",rdBuf);
     }
 
     /* Parse the size variable from the header */
@@ -437,18 +437,22 @@ ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi,
 
     int readData[WUS_NUM_RECORDS][size];
 
+    /* Parse each record and store it into readData */
     for(i = 0; i < size; i++) {
         viQueryf(vi,"#D,R,0;","%s",rdBuf);
         WUS_addRecords(size, readData,rdBuf,i);
     }
 
     Data = &readData;
+    *RecordNum = WUS_NUM_RECORDS*size;
 
     CheckErr (WUS_CheckStatus(vi));
 
 Error:
     return status;
 }
+
+/* TODO DELETE ME */
 
 ViStatus _VI_FUNC  WUS_TestCommands (ViSession vi)
 {
