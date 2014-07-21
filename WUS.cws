@@ -1,5 +1,5 @@
 [Workspace Header]
-Version = 1300
+Version = 1302
 Pathname = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.cws"
 CVI Dir = "/c/program files (x86)/national instruments/cvi2013"
 CVI Shared Dir = "/C/Program Files (x86)/National Instruments/Shared/CVI"
@@ -13,10 +13,10 @@ Number of Projects = 1
 Active Project = 1
 Project 0001 = "WUS.prj"
 Drag Bar Left = 288
-Window Top = 47
-Window Left = 391
-Window Bottom = 749
-Window Right = 1528
+Window Top = 45
+Window Left = 322
+Window Bottom = 747
+Window Right = 1459
 Maximized = False
 Maximized Children = True
 Max32 Number Of Errors = 20
@@ -30,14 +30,14 @@ Save Changes Before Compiling = "Always"
 Hide Windows = False
 Break At First Statement = False
 Sort Type = "File Name"
-Number of Opened Files = 6
+Number of Opened Files = 5
 Window Confinement Region Enabled = True
 MainColumnWidth = 271
 FileDateColumnWidth = 70
 FileSizeColumnWidth = 70
 
 [Project Header 0001]
-Version = 1300
+Version = 1302
 Don't Update DistKit = False
 Platform Code = 4
 Build Configuration = "Debug"
@@ -48,31 +48,34 @@ Batch Build Debug = False
 [File 0001]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.fp"
 File Type = "Function Panel"
-Disk Date = 3488803391
+Disk Date = 3488810026
 In Projects = "1,"
 Window Top = 92
 Window Left = 42
 Window Height = 400
 Window Width = 400
-Window Z-Order = 2
+Window Z-Order = 3
 
 [File 0002]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.c"
 File Type = "CSource"
-Disk Date = 3488804066
+Disk Date = 3488824083
 In Projects = "1,"
 Window Top = 122
 Window Left = 50
-Source Window State = "1,422,423,422,14,27,14,0,0,80,0,108,0,0,0,23,384,0,395,13,323,715,1,17,"
+Source Window State = "1,422,423,422,14,27,14,0,0,80,0,108,0,0,0,23,541,0,552,20,323,715,1,17,"
 
 [File 0003]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.h"
 File Type = "Include"
-Disk Date = 3488803282
+Disk Date = 3488822432
 In Projects = "1,"
 Window Top = 62
 Window Left = 26
-Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,349,715,1,0,"
+Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,78,0,90,45,349,715,1,0,"
+
+[Tab Order]
+Tab 0001 = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.fp"
 
 [Default Build Config 0001 Debug]
 Generate Browse Info = True

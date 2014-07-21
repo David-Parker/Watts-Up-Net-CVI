@@ -20,7 +20,7 @@
 
 /*= DEFINES ===========================================================================*/
 #define WUS_REVISION			 "Rev 1.0, 07/2014, CVI 2012" /*  Instrument driver revision */
-#define WUS_BUFFER_SIZE		     512L         			  	  /*  File I/O buffer size 	     */
+#define WUS_BUFFER_SIZE		     1024L         			  	  /*  File I/O buffer size 	     */
 #define WUS_BAUD_RATE			 115200                         /*  Baud Rate                  */
 #define WUS_BUFFER_SIZE_LARGE    4096L                        /*  Large buffer size          */
 #define WUS_TMO_VALUE            10000                        /*  Timeout Value              */
@@ -384,7 +384,7 @@ Error:
  *Purpose:  Reads all the data from the internal meter and stores it in Data.
  ***************************************************************************************/
 ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi, 
-                                        void* Data,
+                                        void** Data,
                                         ViInt32* RecordNum)
 {
 
@@ -404,7 +404,7 @@ ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi,
 
     viClear(vi);
 
-    /* Header that contains number of records (size) */
+    /* Check if we get the correct header */
     CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
 
     /* Gaurantee that we will get all the data */
@@ -420,11 +420,9 @@ ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi,
     }
 
     /* Copy data off the stack into heap memory */
-    Data = malloc(sizeof(int)*WUS_NUM_RECORDS*size);
-    memcpy(Data,&readData,sizeof(int)*WUS_NUM_RECORDS*size);
+    *Data = malloc(sizeof(ViInt32)*WUS_NUM_RECORDS*size);
+    memcpy(*Data,&readData,sizeof(ViInt32)*WUS_NUM_RECORDS*size);
     *RecordNum = size;
-
-   // free(Data); // TODO DELETE
 
     CheckErr (WUS_CheckStatus(vi));
 
@@ -473,11 +471,17 @@ ViStatus _VI_FUNC  WUS_ReadInterval (ViSession vi,
     ViChar rdBuf[WUS_BUFFER_SIZE];
 
     viClear(vi);
-       
+
     CheckErr (viQueryf(vi,"#S,R,0;","%s",rdBuf));
 
+    /* Gaurantee that we will get all the data */
+    while(rdBuf[1] != 's') {
+        if(!strcmp(rdBuf,"")) return WUS_ERROR_EXECUTION_ERROR;
+        CheckErr(viQueryf(vi,"#S,R,0;","%s",rdBuf));
+    }
+
     *Interval = WUS_GetNthParameter(rdBuf,WUS_VAL_INTERVAL);
-    CheckErr (WUS_CheckStatus(vi));
+    //CheckErr (WUS_CheckStatus(vi));
 
 Error:
     return status;
@@ -499,6 +503,56 @@ Error:
     return status;
 }
 
+/***************************************************************************************
+ *Function: WUS_SaveLogFile
+ *Purpose:  Saves the internal meter data to a file that is recognized by other Watts Up
+            software and programs.
+ ***************************************************************************************/
+ViStatus _VI_FUNC  WUS_SaveLogFile (ViSession vi, 
+                                    ViChar Path[],
+                                    void* Data)
+{
+    /*Define local variables.*/
+    ViStatus status = VI_SUCCESS;
+    ViInt32 formats[18] = {2,3,3,2,3,2,3,2,2,3,2,3,3,1,1,1,1,3};
+    ViReal64 percents[18] = {10,10,1000,10,1000,1000,1000,10,10,1000,10,10,1000,1,1,1,10,10};
+    ViChar format[64];
+    ViInt32 RecordNum = 0;
+    ViInt32 Interval = 0;
+    ViReal64 Time = 0;
+    ViInt32 i = 0;
+    ViInt32 j = 0;
+    
+    /* Manual error checking, because goto statements would skip initialization of newData[][] */
+    if((status = WUS_ReadInterval(vi,&Interval))) return status;
+    if((status = WUS_ReadMeterData(vi,&Data,&RecordNum))) return status;
+
+    /* Get the data from Data which is a void* and put it into a usuable array */
+    ViInt32 newData[18][RecordNum];
+    memcpy(newData,(ViInt32*)Data,sizeof(ViInt32)*18*RecordNum);
+
+    printf("Record Number: %d, Interval: %d\n",RecordNum,Interval);
+
+    FILE* fp = fopen(Path,"w+");
+    fprintf(fp, "%s\n", "Time   Watts   Volts   Amps    WattHrs Cost    Avg Kwh Mo Cost Max Wts Max Vlt Max Amp Min Wts Min Vlt Min Amp Pwr Fct Dty Cyc Pwr Cyc\n");
+    for(i = 0; i < RecordNum; i++) {
+        Time = i*((ViReal64)Interval/(ViReal64)WUS_DAY_IN_SECONDS);
+        fprintf(fp, "%.8f\t", Time);
+        for(j = 0; j < 18; j++) {
+            sprintf(format, "%%.%df\t",formats[j]);
+            fprintf(fp, format, (ViReal64)newData[j][i]/percents[j]);
+        }
+        fprintf(fp, "\n");
+    }
+    fclose(fp);
+    free(Data);
+
+    CheckErr (WUS_CheckStatus(vi));
+
+Error:
+    return status;
+}
+
 /* TODO DELETE ME */
 
 ViStatus _VI_FUNC  WUS_TestCommands (ViSession vi)
@@ -511,8 +565,10 @@ viClear(vi);
 
 CheckErr(viPrintf(vi,"#V,R,0;"));
 CheckErr(viScanf(vi,"%s",rdBuf));
-//CheckErr(viQueryf(vi,"#V,R,0;","%s",rdBuf));
-printf("Buffer %s\n", rdBuf);
+    
+FILE* fp = fopen("C:/users/daparker/Documents/TEST.txt","w+");
+fprintf(fp, "Hey\n");
+fclose(fp);
 
 Error:
     return status; 

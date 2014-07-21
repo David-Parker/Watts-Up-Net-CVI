@@ -68,6 +68,9 @@ extern "C" {
 /* Read Record Num */
 #define WUS_VAL_RECORD_NUM					0x06
 
+/* Save Log File */
+#define WUS_DAY_IN_SECONDS    					0x15180
+
 #define printf                                              DebugPrintf // TODO Delete this when done.
 ViStatus _VI_FUNC  WUS_TestCommands (ViSession vi); // TODO Delete this prototype
 
@@ -87,6 +90,9 @@ ViStatus _VI_FUNC  WUS_Close (ViSession vi);
 /*-------------------------------------------------------------------------------------*/
 
 ViStatus _VI_FUNC  WUS_ResetMeterData (ViSession vi);
+ViStatus _VI_FUNC  WUS_SaveLogFile (ViSession vi, 
+                                    ViChar Path[],
+                                    void* Data);
 
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Configure------------------------------------------*/
@@ -110,7 +116,7 @@ ViStatus _VI_FUNC  WUS_ConfigureItemsToLog (ViSession vi,
 /*------------------------------------Data---------------------------------------------*/
 /*-------------------------------------------------------------------------------------*/
 ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi, 
-                                        void* Data,
+                                        void** Data,
                                         ViInt32* RecordNum);
 
 ViStatus _VI_FUNC  WUS_ReadRecordNum (ViSession vi,
