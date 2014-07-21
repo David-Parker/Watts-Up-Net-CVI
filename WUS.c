@@ -70,8 +70,8 @@ static ViBoolean WUS_InvalidViBooleanRange (ViBoolean val);
 static ViBoolean WUS_InvalidViInt32Range (ViInt32 val, ViInt32 min, ViInt32 max);
 static ViBoolean WUS_InvalidViReal64Range (ViReal64 val, ViReal64 min, ViReal64 max);
 static ViBoolean WUS_InvalidPtr (void* value);
-static ViBoolean WUS_InvalidPositiveViInt32(ViInt32 val);
-static ViStatus WUS_addRecords(int size, int data[][size], char str[], int index);
+static ViStatus WUS_addRecords(ViInt32 size, ViInt32 data[][size], ViChar str[], ViInt32 index);
+static ViInt32 WUS_GetNthParameter(ViChar rdBuf[], ViInt32 n);
 
 
 
@@ -161,25 +161,6 @@ ViStatus _VI_FUNC  WUS_Close (ViSession vi)
 Error:
     return status;
 }
-
-
-/***************************************************************************************
- *Function: WUS_Wait
- *Purpose:  Waits until all previously queued commands have completed finishing
-            before proceeding.
- ***************************************************************************************/
-ViStatus _VI_FUNC  WUS_Wait (ViSession vi)
-{
-    /*Define local variables.*/
-	ViStatus status = VI_SUCCESS;
-
-	CheckErr (viPrintf(vi,"*WAI;"));
-	CheckErr (WUS_CheckStatus(vi));
-
-Error:
-	return status;
-}
-
 
 /***************************************************************************************
  * Function: Error Message                                                   
@@ -348,7 +329,7 @@ ViStatus _VI_FUNC  WUS_ConfigureDataLogging (ViSession vi,
     }
     
     //printf("Sending Command: #L,W,3,%s,0,%d;\n",loggingName,interval);    
-    CheckErr (viPrintf(vi,"#L,W,3,%s,0,%d;\n",loggingName,interval));
+    CheckErr (viPrintf(vi,"#L,W,3,%s,0,%d;",loggingName,interval));
     CheckErr (WUS_CheckStatus(vi));
 
 Error:
@@ -369,7 +350,7 @@ ViStatus _VI_FUNC  WUS_ConfigureMemoryFullHandling (ViSession vi,
     CheckParam (WUS_InvalidViInt32Range(policy,0,2),VI_ERROR_PARAMETER2);
     
     printf("Sending Command: #O,W,1,%d;\n",policy);    
-    CheckErr (viPrintf(vi,"#O,W,1,%d;\n",policy));
+    CheckErr (viPrintf(vi,"#O,W,1,%d;",policy));
     CheckErr (WUS_CheckStatus(vi));
 
 Error:
@@ -391,7 +372,7 @@ ViStatus _VI_FUNC  WUS_ConfigureItemsToLog (ViSession vi,
     CheckParam (WUS_InvalidViInt32Range(temp,0,2),VI_ERROR_PARAMETER2);
     
    // printf("Sending Command: #O,W,1,%d;\n",policy);    
-    CheckErr (viPrintf(vi,"#O,W,1,%d;\n",temp));
+    CheckErr (viPrintf(vi,"#O,W,1,%d;",temp));
     CheckErr (WUS_CheckStatus(vi));
 
 Error:
@@ -413,39 +394,105 @@ ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi,
     ViInt32 size = 0;
     ViInt32 i;
 
-    viClear(vi);
-
-    /* Header that contains number of records (size) */
-    viQueryf(vi,"#D,R,0;","%s",rdBuf);
-
-    /* Gaurantee that we will get all the data */
-    while(rdBuf[1] != 'n') {
-        if(!strcmp(rdBuf,"")) return status;
-        viQueryf(vi,"#D,R,0;","%s",rdBuf);
-    }
-
-    /* Parse the size variable from the header */
-    char * entry;
-    entry = strtok(rdBuf," ,;");
-    while(entry != NULL) {
-        size = atoi(entry);
-        entry = strtok(NULL," ,;");
-    }
+    /* Get the record number */
+    WUS_ReadRecordNum(vi,&size);
 
     /* If there are no records, return */
     if(size <= 0) return status;
 
-    int readData[WUS_NUM_RECORDS][size];
+    ViInt32 readData[WUS_NUM_RECORDS][size];
+
+    viClear(vi);
+
+    /* Header that contains number of records (size) */
+    CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+
+    /* Gaurantee that we will get all the data */
+    while(rdBuf[1] != 'n') {
+        if(!strcmp(rdBuf,"")) return WUS_ERROR_EXECUTION_ERROR;
+        CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+    }
 
     /* Parse each record and store it into readData */
     for(i = 0; i < size; i++) {
-        viQueryf(vi,"#D,R,0;","%s",rdBuf);
-        WUS_addRecords(size, readData,rdBuf,i);
+        CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+        CheckErr(WUS_addRecords(size, readData,rdBuf,i));
     }
 
-    Data = &readData;
-    *RecordNum = WUS_NUM_RECORDS*size;
+    /* Copy data off the stack into heap memory */
+    Data = malloc(sizeof(int)*WUS_NUM_RECORDS*size);
+    memcpy(Data,&readData,sizeof(int)*WUS_NUM_RECORDS*size);
+    *RecordNum = size;
 
+   // free(Data); // TODO DELETE
+
+    CheckErr (WUS_CheckStatus(vi));
+
+Error:
+    return status;
+}
+
+/***************************************************************************************
+ *Function: WUS_ReadRecordNum
+ *Purpose:  Reads the number of records in the Watts Up internal memory.
+ ***************************************************************************************/
+ViStatus _VI_FUNC  WUS_ReadRecordNum (ViSession vi,
+                                        ViInt32* RecordNum)
+{
+    /*Define local variables.*/
+    ViStatus status = VI_SUCCESS;
+    ViChar rdBuf[WUS_BUFFER_SIZE];
+
+    viClear(vi);
+
+    /* Header that contains number of records (size) */
+    CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+
+    /* Gaurantee that we will get all the data */
+    while(rdBuf[1] != 'n') {
+        if(!strcmp(rdBuf,"")) return WUS_ERROR_EXECUTION_ERROR;
+        CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+    }
+
+    *RecordNum = WUS_GetNthParameter(rdBuf,WUS_VAL_RECORD_NUM);
+
+Error:
+    return status;
+
+}
+
+/***************************************************************************************
+ *Function: WUS_ReadInterval
+ *Purpose:  Reads the current recording interval from the Watts Up device.
+ ***************************************************************************************/
+ViStatus _VI_FUNC  WUS_ReadInterval (ViSession vi,
+                                    ViInt32* Interval)
+{
+    /*Define local variables.*/
+    ViStatus status = VI_SUCCESS;
+    ViChar rdBuf[WUS_BUFFER_SIZE];
+
+    viClear(vi);
+       
+    CheckErr (viQueryf(vi,"#S,R,0;","%s",rdBuf));
+
+    *Interval = WUS_GetNthParameter(rdBuf,WUS_VAL_INTERVAL);
+    CheckErr (WUS_CheckStatus(vi));
+
+Error:
+    return status;
+}
+
+/***************************************************************************************
+ *Function: WUS_ResetMeterData
+ *Purpose:  Clears all the data from internal memory.
+ ***************************************************************************************/
+ViStatus _VI_FUNC  WUS_ResetMeterData (ViSession vi)
+{
+    /*Define local variables.*/
+    ViStatus status = VI_SUCCESS;
+       
+    CheckErr (viPrintf(vi,"#R,W,0;"));
     CheckErr (WUS_CheckStatus(vi));
 
 Error:
@@ -516,17 +563,15 @@ static ViBoolean WUS_InvalidPtr (void *value)
     return ((value == VI_NULL) ? VI_TRUE : VI_FALSE);
 }
 
-static ViBoolean WUS_InvalidPositiveViInt32(ViInt32 val)
-{
-    return val > 0;
-}
-
-static ViStatus WUS_addRecords(int size, int data[][size], char str[], int index) {
+/*************************************************************************************************/
+/* Function: Add records from str[] into data[][]                                                */
+/*************************************************************************************************/
+static ViStatus WUS_addRecords(ViInt32 size, ViInt32 data[][size], ViChar str[], ViInt32 index) {
     ViStatus status = VI_SUCCESS;
 
-    char * entry;
-    int val = 0;
-    int count = 0;
+    ViChar * entry;
+    ViInt32 val = 0;
+    ViInt32 count = 0;
     entry = strtok(str," ,;");
     while(entry != NULL) {
         /* Only grab the data in between the header info */
@@ -540,6 +585,26 @@ static ViStatus WUS_addRecords(int size, int data[][size], char str[], int index
 
 Error:
     return status;
+}
+
+/*************************************************************************************************/
+/* Function: Find the Nth parameter                                                              */
+/* Purpose:  This function parses the specified parameter from the rdBuf[] and returns that      */
+/*           value.                                                                              */
+/*************************************************************************************************/
+static ViInt32 WUS_GetNthParameter(ViChar rdBuf[], ViInt32 n) {
+    ViInt32 val = 0;
+    ViInt32 count = 0;
+    ViChar * entry = strtok(rdBuf," ,;");
+
+    while(entry) {
+        if(count < n) {
+            val = atoi(entry);
+            count++;
+        }
+        entry = strtok(NULL," ,;");
+    }
+    return val;
 }
 
 

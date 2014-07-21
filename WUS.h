@@ -62,6 +62,12 @@ extern "C" {
 #define WUS_VAL_EXTERNAL_LOG					0x01
 #define WUS_VAL_TCP_LOG						0x02	
 
+/* Read Interval */
+#define WUS_VAL_INTERVAL					0x05
+
+/* Read Record Num */
+#define WUS_VAL_RECORD_NUM					0x06
+
 #define printf                                              DebugPrintf // TODO Delete this when done.
 ViStatus _VI_FUNC  WUS_TestCommands (ViSession vi); // TODO Delete this prototype
 
@@ -80,7 +86,7 @@ ViStatus _VI_FUNC  WUS_Close (ViSession vi);
 /*--------------------------------- Action-Status--------------------------------------*/
 /*-------------------------------------------------------------------------------------*/
 
-ViStatus _VI_FUNC  WUS_Wait (ViSession vi);
+ViStatus _VI_FUNC  WUS_ResetMeterData (ViSession vi);
 
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Configure------------------------------------------*/
@@ -106,6 +112,12 @@ ViStatus _VI_FUNC  WUS_ConfigureItemsToLog (ViSession vi,
 ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi, 
                                         void* Data,
                                         ViInt32* RecordNum);
+
+ViStatus _VI_FUNC  WUS_ReadRecordNum (ViSession vi,
+                                        ViInt32* RecordNum);
+
+ViStatus _VI_FUNC  WUS_ReadInterval (ViSession vi,
+                                    ViInt32* Interval);
 
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Low-level------------------------------------------*/
