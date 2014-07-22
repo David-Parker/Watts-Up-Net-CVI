@@ -391,6 +391,7 @@ ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi,
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
     ViChar rdBuf[WUS_BUFFER_SIZE];
+    ViChar cancel[1] = {'\x18'};
     ViInt32 size = 0;
     ViInt32 i;
 
@@ -409,8 +410,9 @@ ViStatus _VI_FUNC  WUS_ReadMeterData (ViSession vi,
 
     /* Gaurantee that we will get all the data */
     while(rdBuf[1] != 'n') {
+        viQueryf(vi,cancel,"%s",rdBuf);
         if(!strcmp(rdBuf,"")) return WUS_ERROR_EXECUTION_ERROR;
-        CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+        viQueryf(vi,"#D,R,0;","%s",rdBuf);
     }
 
     /* Parse each record and store it into readData */
@@ -432,7 +434,8 @@ Error:
 
 /***************************************************************************************
  *Function: WUS_ReadRecordNum
- *Purpose:  Reads the number of records in the Watts Up internal memory.
+ *Purpose:  Reads the number of records in the Watts Up internal memory. Error handling
+            has been disabled for viRead performance, but this function gaurantees success.
  ***************************************************************************************/
 ViStatus _VI_FUNC  WUS_ReadRecordNum (ViSession vi,
                                         ViInt32* RecordNum)
@@ -440,28 +443,30 @@ ViStatus _VI_FUNC  WUS_ReadRecordNum (ViSession vi,
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
     ViChar rdBuf[WUS_BUFFER_SIZE];
+    ViChar cancel[1] = {'\x18'};
 
     viClear(vi);
 
     /* Header that contains number of records (size) */
-    CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+    viQueryf(vi,"#D,R,0;","%s",rdBuf);
 
-    /* Gaurantee that we will get all the data */
+    /* Gaurantee that we will get all the data*/
     while(rdBuf[1] != 'n') {
+        viQueryf(vi,cancel,"%s",rdBuf);
         if(!strcmp(rdBuf,"")) return WUS_ERROR_EXECUTION_ERROR;
-        CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+        viQueryf(vi,"#D,R,0;","%s",rdBuf);
     }
 
     *RecordNum = WUS_GetNthParameter(rdBuf,WUS_VAL_RECORD_NUM);
 
-Error:
     return status;
 
 }
 
 /***************************************************************************************
  *Function: WUS_ReadInterval
- *Purpose:  Reads the current recording interval from the Watts Up device.
+ *Purpose:  Reads the current recording interval from the Watts Up device. Error handling
+            has been disabled for viRead performance, but this function gaurantees success.
  ***************************************************************************************/
 ViStatus _VI_FUNC  WUS_ReadInterval (ViSession vi,
                                     ViInt32* Interval)
@@ -469,22 +474,23 @@ ViStatus _VI_FUNC  WUS_ReadInterval (ViSession vi,
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
     ViChar rdBuf[WUS_BUFFER_SIZE];
+    ViChar cancel[1] = {'\x18'};
 
     viClear(vi);
 
-    CheckErr (viQueryf(vi,"#S,R,0;","%s",rdBuf));
+    viQueryf(vi,"#S,R,0;","%s",rdBuf);
 
     /* Gaurantee that we will get all the data */
     while(rdBuf[1] != 's') {
+        viQueryf(vi,cancel,"%s",rdBuf);
         if(!strcmp(rdBuf,"")) return WUS_ERROR_EXECUTION_ERROR;
-        CheckErr(viQueryf(vi,"#S,R,0;","%s",rdBuf));
+        viQueryf(vi,"#S,R,0;","%s",rdBuf);
     }
 
     *Interval = WUS_GetNthParameter(rdBuf,WUS_VAL_INTERVAL);
-    //CheckErr (WUS_CheckStatus(vi));
 
-Error:
     return status;
+
 }
 
 /***************************************************************************************
@@ -533,6 +539,7 @@ ViStatus _VI_FUNC  WUS_SaveLogFile (ViSession vi,
 
     printf("Record Number: %d, Interval: %d\n",RecordNum,Interval);
 
+    /* Output the data in the exact format as Watts Up USB software */
     FILE* fp = fopen(Path,"w+");
     fprintf(fp, "%s\n", "Time   Watts   Volts   Amps    WattHrs Cost    Avg Kwh Mo Cost Max Wts Max Vlt Max Amp Min Wts Min Vlt Min Amp Pwr Fct Dty Cyc Pwr Cyc\n");
     for(i = 0; i < RecordNum; i++) {

@@ -13,10 +13,10 @@ Number of Projects = 1
 Active Project = 1
 Project 0001 = "WUS.prj"
 Drag Bar Left = 288
-Window Top = 45
-Window Left = 322
-Window Bottom = 747
-Window Right = 1459
+Window Top = 33
+Window Left = 333
+Window Bottom = 735
+Window Right = 1470
 Maximized = False
 Maximized Children = True
 Max32 Number Of Errors = 20
@@ -30,7 +30,7 @@ Save Changes Before Compiling = "Always"
 Hide Windows = False
 Break At First Statement = False
 Sort Type = "File Name"
-Number of Opened Files = 5
+Number of Opened Files = 7
 Window Confinement Region Enabled = True
 MainColumnWidth = 271
 FileDateColumnWidth = 70
@@ -54,16 +54,16 @@ Window Top = 92
 Window Left = 42
 Window Height = 400
 Window Width = 400
-Window Z-Order = 3
+Window Z-Order = 4
 
 [File 0002]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.c"
 File Type = "CSource"
-Disk Date = 3488824083
+Disk Date = 3488907286
 In Projects = "1,"
 Window Top = 122
 Window Left = 50
-Source Window State = "1,422,423,422,14,27,14,0,0,80,0,108,0,0,0,23,541,0,552,20,323,715,1,17,"
+Source Window State = "1,422,423,422,14,27,14,0,0,80,0,108,0,0,0,23,460,0,555,28,323,715,1,17,"
 
 [File 0003]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.h"
@@ -74,8 +74,19 @@ Window Top = 62
 Window Left = 26
 Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,78,0,90,45,349,715,1,0,"
 
+[File 0004]
+Path = "/c/Program Files (x86)/National Instruments/Shared/CVI/include/visa.h"
+File Type = "Include"
+Disk Date = 3454540316
+In Projects = ""
+Window Top = 62
+Window Left = 26
+Window Z-Order = 6
+Source Window State = "1,0,0,0,0,0,0,0,0,78,0,118,0,0,0,21,118,0,128,57,297,699,1,0,"
+
 [Tab Order]
 Tab 0001 = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Series/WUS.fp"
+Tab 0002 = "/c/Program Files (x86)/National Instruments/Shared/CVI/include/visa.h"
 
 [Default Build Config 0001 Debug]
 Generate Browse Info = True
