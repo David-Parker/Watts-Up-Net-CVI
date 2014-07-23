@@ -71,10 +71,6 @@ extern "C" {
 /* Save Log File */
 #define WUN_DAY_IN_SECONDS    					0x15180
 
-#define printf                                              DebugPrintf // TODO Delete this when done.
-ViStatus _VI_FUNC  WUN_TestCommands (ViSession vi); // TODO Delete this prototype
-
-
 /***************************************************************************************/
 /*= GLOBAL USER-CALLABLE FUNCTION DECLARATIONS (Exportable Functions) =================*/
 /***************************************************************************************/
@@ -92,7 +88,8 @@ ViStatus _VI_FUNC  WUN_Close (ViSession vi);
 ViStatus _VI_FUNC  WUN_ResetMeterData (ViSession vi);
 ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi, 
                                     ViChar Path[],
-                                    void* Data);
+                                    void* Data,
+                                    ViInt32 RecordNum);
 
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Configure------------------------------------------*/

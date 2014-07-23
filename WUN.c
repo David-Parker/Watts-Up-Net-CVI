@@ -5,14 +5,13 @@
  * Watts Up Series                          
  * VXIPNP, LabWindows/CVI 2013 Instrument Driver
  *
- *  Original Release: TODO 
+ *  Original Release: 07/23/2014 
  *  By: David Parker
  *
  *  Modification History: 
  *
- *      TODO  - Instrument Driver Created.
+ *      07/14/2014  - Instrument Driver Created.
  ***************************************************************************************/
-#include <utility.h> // TODO Delete me
 #include <formatio.h>
 #include <visa.h>
 #include <ansi_c.h>
@@ -21,7 +20,7 @@
 /*= DEFINES ===========================================================================*/
 #define WUN_REVISION			 "Rev 1.0, 07/2014, CVI 2012" /*  Instrument driver revision */
 #define WUN_BUFFER_SIZE		     1024L         			  	  /*  File I/O buffer size 	     */
-#define WUN_BAUD_RATE			 115200                         /*  Baud Rate                  */
+#define WUN_BAUD_RATE			 115200                       /*  Baud Rate                  */
 #define WUN_BUFFER_SIZE_LARGE    4096L                        /*  Large buffer size          */
 #define WUN_TMO_VALUE            10000                        /*  Timeout Value              */
 
@@ -105,7 +104,6 @@ ViStatus _VI_FUNC  WUN_Initialize (ViRsrc VISAResourceName,
 	/*- Open instrument session ---------------------------------------------*/
     CheckErr (viOpenDefaultRM(&rmSession));
     if ((status = viOpen(rmSession, VISAResourceName, VI_NULL, VI_NULL, vi)) < 0) {
-        printf("ERROR at viOpen: %d, Session: %d\n", status, rmSession); // TODO Delete me
         viClose (rmSession);
         return status;
 	}
@@ -389,6 +387,8 @@ Error:
 /***************************************************************************************
  *Function: WUN_ReadMeterData
  *Purpose:  Reads all the data from the internal meter and stores it in Data.
+            NOTE: If you use this function in an application remember to free Data when
+            you are done with it.
  ***************************************************************************************/
 ViStatus _VI_FUNC  WUN_ReadMeterData (ViSession vi, 
                                         void** Data,
@@ -448,7 +448,7 @@ ViStatus _VI_FUNC  WUN_ReadRecordNum (ViSession vi,
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
     ViChar rdBuf[WUN_BUFFER_SIZE];
-    ViChar cancel[1] = {'\x18'};
+    ViChar cancel[2] = {'\x18','\0'};
 
     viClear(vi);
 
@@ -479,7 +479,7 @@ ViStatus _VI_FUNC  WUN_ReadInterval (ViSession vi,
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
     ViChar rdBuf[WUN_BUFFER_SIZE];
-    ViChar cancel[1] = {'\x18'};
+    ViChar cancel[2] = {'\x18','\0'};
 
     viClear(vi);
 
@@ -521,7 +521,8 @@ Error:
  ***************************************************************************************/
 ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi, 
                                     ViChar Path[],
-                                    void* Data)
+                                    void* Data,
+                                    ViInt32 RecordNum)
 {
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
@@ -529,7 +530,6 @@ ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi,
     ViReal64 percents[18] = {10,10,1000,10,1000,1000,1000,10,10,1000,10,10,1000,1,1,1,10,10};
     ViChar format[64];
     ViChar subChar[2] = {'\x1A','\0'};
-    ViInt32 RecordNum = 0;
     ViInt32 Interval = 0;
     ViReal64 Time = 0;
     ViInt32 i = 0;
@@ -537,7 +537,6 @@ ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi,
     
     /* Manual error checking, because goto statements would skip initialization of newData[][] */
     if((status = WUN_ReadInterval(vi,&Interval))) return status;
-    if((status = WUN_ReadMeterData(vi,&Data,&RecordNum))) return status;
 
     /* Get the data from Data which is a void* and put it into a usuable array */
     ViInt32 newData[18][RecordNum];
@@ -565,28 +564,6 @@ ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi,
 Error:
     return status;
 }
-
-/* TODO DELETE ME */
-
-ViStatus _VI_FUNC  WUN_TestCommands (ViSession vi)
-{
-
-ViStatus status = VI_SUCCESS;
-ViChar rdBuf[256];
-
-viClear(vi);
-
-CheckErr(viPrintf(vi,"#V,R,0;"));
-CheckErr(viScanf(vi,"%s",rdBuf));
-    
-FILE* fp = fopen("C:/users/daparker/Documents/TEST.txt","w+");
-fprintf(fp, "Hey\n");
-fclose(fp);
-
-Error:
-    return status; 
-}
-
 
 /*************************************************************************************************/
 /* Function: Boolean Value Out Of Range - ViBoolean                                              */

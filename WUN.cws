@@ -13,10 +13,10 @@ Number of Projects = 1
 Active Project = 1
 Project 0001 = "WUN.prj"
 Drag Bar Left = 288
-Window Top = 166
-Window Left = 336
-Window Bottom = 868
-Window Right = 1473
+Window Top = 95
+Window Left = 141
+Window Bottom = 797
+Window Right = 1278
 Maximized = False
 Maximized Children = True
 Max32 Number Of Errors = 20
@@ -30,7 +30,7 @@ Save Changes Before Compiling = "Always"
 Hide Windows = False
 Break At First Statement = False
 Sort Type = "File Name"
-Number of Opened Files = 3
+Number of Opened Files = 2
 Window Confinement Region Enabled = True
 MainColumnWidth = 271
 FileDateColumnWidth = 70
@@ -48,36 +48,34 @@ Batch Build Debug = False
 [File 0001]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Net/WUN.fp"
 File Type = "Function Panel"
-Disk Date = 3488984984
+Disk Date = 3488992618
 In Projects = "1,"
 Window Top = 92
 Window Left = 42
 Window Height = 400
 Window Width = 400
-Window Z-Order = 2
+Window Z-Order = 1
 
 [File 0002]
-Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Net/WUN.h"
-File Type = "Include"
-Disk Date = 3488988004
-In Projects = "1,"
-Window Top = 62
-Window Left = 26
-Window Z-Order = 3
-Source Window State = "1,0,0,0,0,0,0,0,0,78,0,0,0,0,0,25,0,0,0,0,349,699,1,0,"
-
-[File 0003]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Net/WUN.c"
 File Type = "CSource"
-Disk Date = 3488987980
+Disk Date = 3488992570
 In Projects = "1,"
 Window Top = 32
 Window Left = 10
 Source Window State = "1,435,435,435,15,16,16,0,0,0,0,0,0,0,0,0,547,0,559,4,349,699,1,0,"
 
+[File 0003]
+Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Net/WUN.h"
+File Type = "Include"
+Disk Date = 3488992568
+In Projects = "1,"
+Window Top = 62
+Window Left = 26
+Source Window State = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,349,699,1,0,"
+
 [Tab Order]
 Tab 0001 = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Net/WUN.fp"
-Tab 0002 = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Net/WUN.h"
 
 [Default Build Config 0001 Debug]
 Generate Browse Info = True
