@@ -557,7 +557,6 @@ ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi,
     }
     fprintf(fp, "%s", subChar);
     fclose(fp);
-    free(Data);
 
     CheckErr (WUN_CheckStatus(vi));
 

@@ -1,4 +1,4 @@
- /*****************************************************************************/  
+/*****************************************************************************/  
 /*  Copyright 2014 National Instruments Corporation.  All Rights Reserved.   */
 /*****************************************************************************/
 
@@ -64,7 +64,6 @@ int main()
 	ViInt32 RecordNum = 0;
 	void* Data;
 
-
 	/* Initialize */
 	CheckErr (WUN_Initialize(WUN_EXAMPLE_RESOURCE_ADDRESS,VI_TRUE,&WUN));
 
@@ -72,10 +71,13 @@ int main()
 	CheckErr (WUN_ReadMeterData(WUN,&Data,&RecordNum));
 
 	/* Save Data to Log File */
-	CheckErr(WUN_SaveLogFile (WUN,"C:/WU.txt",Data,RecordNum));
+	CheckErr (WUN_SaveLogFile (WUN,"C:/WU.txt",Data,RecordNum));
 
 	/* Close */
-	CheckErr(WUN_Close(WUN));
+	CheckErr (WUN_Close(WUN));
+
+	/* Always free Data after using WUN_ReadMeterData */
+	free(Data);
 
 	sprintf (szMsg, "Save Complete!\nYou may now exit.");
 

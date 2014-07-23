@@ -30,7 +30,7 @@ Save Changes Before Compiling = "Always"
 Hide Windows = False
 Break At First Statement = False
 Sort Type = "File Name"
-Number of Opened Files = 2
+Number of Opened Files = 3
 Window Confinement Region Enabled = True
 MainColumnWidth = 271
 FileDateColumnWidth = 70
@@ -54,12 +54,12 @@ Window Top = 92
 Window Left = 42
 Window Height = 400
 Window Width = 400
-Window Z-Order = 1
+Window Z-Order = 2
 
 [File 0002]
 Path = "/c/Users/daparker/Documents/David - NI/CVI Projects/Watts Up Net/WUN.c"
 File Type = "CSource"
-Disk Date = 3488992570
+Disk Date = 3488994215
 In Projects = "1,"
 Window Top = 32
 Window Left = 10
