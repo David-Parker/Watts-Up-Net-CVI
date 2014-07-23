@@ -109,8 +109,16 @@ ViStatus _VI_FUNC  WUS_ConfigureDataLogging (ViSession vi,
 ViStatus _VI_FUNC  WUS_ConfigureMemoryFullHandling (ViSession vi, 
                                                     ViInt32 policy);
 
-ViStatus _VI_FUNC  WUS_ConfigureItemsToLog (ViSession vi, 
-                                                    ViInt32 temp); // TODO
+ViStatus _VI_FUNC  WUS_ConfigureItemsToLog (ViSession vi, ViBoolean Watts,
+                                            ViBoolean Volts, ViBoolean Amps,
+                                            ViBoolean Watt_Hours, ViBoolean Cost,
+                                            ViBoolean Mo_Ave_KWhr, ViBoolean Mo_Ave_Cost,
+                                            ViBoolean Max_Watts, ViBoolean Max_Volts, 
+                                            ViBoolean Max_Amps,ViBoolean Min_Watts, 
+                                            ViBoolean Min_Volts,ViBoolean Min_Amps, 
+                                            ViBoolean Power_Factor,ViBoolean Duty_Cycle, 
+                                            ViBoolean Power_Cycle,ViBoolean Line_Freq, 
+                                            ViBoolean Volt_Amps);
 
 /*-------------------------------------------------------------------------------------*/
 /*------------------------------------Data---------------------------------------------*/

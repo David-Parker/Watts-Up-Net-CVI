@@ -3,7 +3,7 @@
  ***************************************************************************************/
 /***************************************************************************************
  * Watts Up Series                          
- * VXIPNP, LabWindows/CVI 2012 Instrument Driver
+ * VXIPNP, LabWindows/CVI 2013 Instrument Driver
  *
  *  Original Release: TODO 
  *  By: David Parker
@@ -105,7 +105,7 @@ ViStatus _VI_FUNC  WUS_Initialize (ViRsrc VISAResourceName,
 	/*- Open instrument session ---------------------------------------------*/
     CheckErr (viOpenDefaultRM(&rmSession));
     if ((status = viOpen(rmSession, VISAResourceName, VI_NULL, VI_NULL, vi)) < 0) {
-        printf("ERROR at viOpen: %d, Session: %d\n", status, rmSession);
+        printf("ERROR at viOpen: %d, Session: %d\n", status, rmSession); // TODO Delete me
         viClose (rmSession);
         return status;
 	}
@@ -269,7 +269,7 @@ ViStatus _VI_FUNC  WUS_SelfTest (ViSession vi,
     CheckParam (WUS_InvalidPtr(selfTestResultCode),VI_ERROR_PARAMETER2);
     CheckParam (WUS_InvalidPtr(selfTestResultMessage),VI_ERROR_PARAMETER3);
 
-    CheckErr (viQueryf(vi,"*TST?","%s",rdBuf));
+    CheckErr (viQueryf(vi,"#T,T,1,1;","%s",rdBuf));
     Scan (rdBuf,"%s>%d",selfTestResultCode);
     Scan (rdBuf,"%s>%s",selfTestResultMessage);
     CheckErr (WUS_CheckStatus(vi));
@@ -327,8 +327,7 @@ ViStatus _VI_FUNC  WUS_ConfigureDataLogging (ViSession vi,
             break;
         default: strcpy(loggingName,"");
     }
-    
-    //printf("Sending Command: #L,W,3,%s,0,%d;\n",loggingName,interval);    
+      
     CheckErr (viPrintf(vi,"#L,W,3,%s,0,%d;",loggingName,interval));
     CheckErr (WUS_CheckStatus(vi));
 
@@ -348,8 +347,7 @@ ViStatus _VI_FUNC  WUS_ConfigureMemoryFullHandling (ViSession vi,
     
     /*- Check input parameter ranges ----------------------------------------*/
     CheckParam (WUS_InvalidViInt32Range(policy,0,2),VI_ERROR_PARAMETER2);
-    
-    printf("Sending Command: #O,W,1,%d;\n",policy);    
+        
     CheckErr (viPrintf(vi,"#O,W,1,%d;",policy));
     CheckErr (WUS_CheckStatus(vi));
 
@@ -361,18 +359,26 @@ Error:
  *Function: WUS_ConfigureItemsToLog
  *Purpose:  Configures which items will be recorded on the Watts Up internal memory.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUS_ConfigureItemsToLog (ViSession vi, 
-                                                    ViInt32 temp)
+ViStatus _VI_FUNC  WUS_ConfigureItemsToLog (ViSession vi, ViBoolean Watts,
+                                            ViBoolean Volts, ViBoolean Amps,
+                                            ViBoolean Watt_Hours, ViBoolean Cost,
+                                            ViBoolean Mo_Ave_KWhr, ViBoolean Mo_Ave_Cost,
+                                            ViBoolean Max_Watts, ViBoolean Max_Volts, 
+                                            ViBoolean Max_Amps,ViBoolean Min_Watts, 
+                                            ViBoolean Min_Volts,ViBoolean Min_Amps, 
+                                            ViBoolean Power_Factor,ViBoolean Duty_Cycle, 
+                                            ViBoolean Power_Cycle,ViBoolean Line_Freq, 
+                                            ViBoolean Volt_Amps)
 {
-    // TODO
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
-    
-    /*- Check input parameter ranges ----------------------------------------*/
-    CheckParam (WUS_InvalidViInt32Range(temp,0,2),VI_ERROR_PARAMETER2);
-    
-   // printf("Sending Command: #O,W,1,%d;\n",policy);    
-    CheckErr (viPrintf(vi,"#O,W,1,%d;",temp));
+       
+    CheckErr (viPrintf(vi,"#C,W,18,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d;",Watts,Volts,Amps,Watt_Hours, Cost,
+                                                                                           Mo_Ave_KWhr,Mo_Ave_Cost,Max_Watts,
+                                                                                           Max_Volts,Max_Amps,Min_Watts,
+                                                                                           Min_Volts,Min_Amps,Power_Factor,
+                                                                                           Duty_Cycle,Power_Cycle,Line_Freq,
+                                                                                           Volt_Amps));
     CheckErr (WUS_CheckStatus(vi));
 
 Error:
@@ -536,8 +542,6 @@ ViStatus _VI_FUNC  WUS_SaveLogFile (ViSession vi,
     /* Get the data from Data which is a void* and put it into a usuable array */
     ViInt32 newData[18][RecordNum];
     memcpy(newData,(ViInt32*)Data,sizeof(ViInt32)*18*RecordNum);
-
-    printf("Record Number: %d, Interval: %d\n",RecordNum,Interval);
 
     /* Output the data in the exact format as Watts Up USB software */
     FILE* fp = fopen(Path,"w+");
@@ -716,7 +720,7 @@ ViStatus WUS_CheckStatus (ViSession vi)
     {
         CheckErr (WUS_ERROR_EXECUTION_ERROR);
     } 
-	if ((esrValue & WUS_ESR_COMMAND_ERROR) != 0)
+    if ((esrValue & WUS_ESR_COMMAND_ERROR) != 0)
     {
         CheckErr (WUS_ERROR_COMMAND_ERROR);
     }
@@ -724,6 +728,7 @@ ViStatus WUS_CheckStatus (ViSession vi)
 Error:
     return status;
 }
+
 /*****************************************************************************
  *-------------------------- End Instrument Driver Source Code --------------*
  *****************************************************************************/
