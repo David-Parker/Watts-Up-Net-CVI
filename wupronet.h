@@ -2,7 +2,7 @@
  *
  * (c) Copyright 2014, National Instruments. All Rights Reserved.
  *
- * Title:    WUN.h
+ * Title:    wupronet.h
  *
  * Purpose:  
  *           VXIPNP instrument driver declarations.
@@ -10,8 +10,8 @@
 /***************************************************************************************/
 
 
-#ifndef _WUN_HEADER_
-#define _WUN_HEADER_
+#ifndef _wupronet_HEADER_
+#define _wupronet_HEADER_
 #include <vpptype.h>
 
 #if defined(__cplusplus) || defined(__cplusplus__)
@@ -38,55 +38,52 @@ extern "C" {
 /***************************************************************************************/
 #define VI_WARNING_INSTR_OFFSET						           (0x3FFC0900L)
 #define VI_ERROR_INSTR_OFFSET						           (_VI_ERROR+0x3FFC0900L)
-#define WUN_ERROR_DEVICE_DEPENDENT_ERROR                   (VI_ERROR_INSTR_OFFSET + 0x10L)
-#define WUN_ERROR_EXECUTION_ERROR                          (VI_ERROR_INSTR_OFFSET + 0x20L)
-#define WUN_ERROR_COMMAND_ERROR                            (VI_ERROR_INSTR_OFFSET + 0x30L)
+#define WUPRONET_ERROR_DEVICE_DEPENDENT_ERROR                   (VI_ERROR_INSTR_OFFSET + 0x10L)
+#define WUPRONET_ERROR_EXECUTION_ERROR                          (VI_ERROR_INSTR_OFFSET + 0x20L)
+#define WUPRONET_ERROR_COMMAND_ERROR                            (VI_ERROR_INSTR_OFFSET + 0x30L)
 
 /***************************************************************************************/
 /*= INSTRUMENT CONSTANTS ==============================================================*/
 /***************************************************************************************/
 
 /* Defined values for Standard Event Status Register */
-#define WUN_ESR_QUERY_ERROR                                 	0x04
-#define WUN_ESR_DEVICE_DEPENDENT_ERROR                      	0x08
-#define WUN_ESR_EXECUTION_ERROR                             	0x10
-#define WUN_ESR_COMMAND_ERROR                               	0x20
-#define WUN_BAUD_RATE                                       	0x1C200
-#define WUN_NUM_RECORDS						0x12
-
-/* Configure User Parameters*/
-#define WUN_VAL_COST_RATE					1000
+#define WUPRONET_ESR_QUERY_ERROR                                 	0x04
+#define WUPRONET_ESR_DEVICE_DEPENDENT_ERROR                      	0x08
+#define WUPRONET_ESR_EXECUTION_ERROR                             	0x10
+#define WUPRONET_ESR_COMMAND_ERROR                               	0x20
+#define WUPRONET_BAUD_RATE                                       	0x1C200
+#define WUPRONET_NUM_RECORDS                                         0x12
 
 /* Configure Data Logging*/
-#define WUN_VAL_INTERNAL_LOG					0x00
-#define WUN_VAL_EXTERNAL_LOG					0x01
-#define WUN_VAL_TCP_LOG						0x02	
+#define WUPRONET_VAL_INTERNAL_LOG					                0x00
+#define WUPRONET_VAL_EXTERNAL_LOG                                    0x01
+#define WUPRONET_VAL_TCP_LOG						                    0x02	
 
 /* Read Interval */
-#define WUN_VAL_INTERVAL					0x05
+#define WUPRONET_VAL_INTERVAL					                    0x05
 
 /* Read Record Num */
-#define WUN_VAL_RECORD_NUM					0x06
+#define WUPRONET_VAL_RECORD_NUM					                    0x06
 
 /* Save Log File */
-#define WUN_DAY_IN_SECONDS    					0x15180
+#define WUPRONET_DAY_IN_SECONDS    					                0x15180
 
 /***************************************************************************************/
 /*= GLOBAL USER-CALLABLE FUNCTION DECLARATIONS (Exportable Functions) =================*/
 /***************************************************************************************/
 
-ViStatus _VI_FUNC  WUN_Initialize (ViRsrc VISAResourceName,  
+ViStatus _VI_FUNC  wupronet_Initialize (ViRsrc VISAResourceName,  
         							ViBoolean reset, 
         							ViSession* vi);
 
-ViStatus _VI_FUNC  WUN_Close (ViSession vi);
+ViStatus _VI_FUNC  wupronet_Close (ViSession vi);
 
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Action-Status--------------------------------------*/
 /*-------------------------------------------------------------------------------------*/
 
-ViStatus _VI_FUNC  WUN_ResetMeterData (ViSession vi);
-ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_ResetMeterData (ViSession vi);
+ViStatus _VI_FUNC  wupronet_SaveLogFile (ViSession vi, 
                                     ViChar Path[],
                                     void* Data,
                                     ViInt32 RecordNum);
@@ -94,19 +91,19 @@ ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi,
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Configure------------------------------------------*/
 /*-------------------------------------------------------------------------------------*/
-ViStatus _VI_FUNC  WUN_ConfigureUserParameters (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_ConfigureUserParameters (ViSession vi, 
                                                 ViInt32 rate,
                                                 ViInt32 threshold,
                                                 ViInt32 currency);
 
-ViStatus _VI_FUNC  WUN_ConfigureDataLogging (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_ConfigureDataLogging (ViSession vi, 
                                                 ViInt32 loggingType,
                                                 ViInt32 interval);
 
-ViStatus _VI_FUNC  WUN_ConfigureMemoryFullHandling (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_ConfigureMemoryFullHandling (ViSession vi, 
                                                     ViInt32 policy);
 
-ViStatus _VI_FUNC  WUN_ConfigureItemsToLog (ViSession vi, ViBoolean Watts,
+ViStatus _VI_FUNC  wupronet_ConfigureItemsToLog (ViSession vi, ViBoolean Watts,
                                             ViBoolean Volts, ViBoolean Amps,
                                             ViBoolean Watt_Hours, ViBoolean Cost,
                                             ViBoolean Mo_Ave_KWhr, ViBoolean Mo_Ave_Cost,
@@ -120,14 +117,14 @@ ViStatus _VI_FUNC  WUN_ConfigureItemsToLog (ViSession vi, ViBoolean Watts,
 /*-------------------------------------------------------------------------------------*/
 /*------------------------------------Data---------------------------------------------*/
 /*-------------------------------------------------------------------------------------*/
-ViStatus _VI_FUNC  WUN_ReadMeterData (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_ReadMeterData (ViSession vi, 
                                         void** Data,
                                         ViInt32* RecordNum);
 
-ViStatus _VI_FUNC  WUN_ReadRecordNum (ViSession vi,
+ViStatus _VI_FUNC  wupronet_ReadRecordNum (ViSession vi,
                                         ViInt32* RecordNum);
 
-ViStatus _VI_FUNC  WUN_ReadInterval (ViSession vi,
+ViStatus _VI_FUNC  wupronet_ReadInterval (ViSession vi,
                                     ViInt32* Interval);
 
 /*-------------------------------------------------------------------------------------*/
@@ -137,21 +134,21 @@ ViStatus _VI_FUNC  WUN_ReadInterval (ViSession vi,
 /*-------------------------------------------------------------------------------------*/
 /*--------------------------------- Utility--------------------------------------------*/
 /*-------------------------------------------------------------------------------------*/
-ViStatus _VI_FUNC  WUN_ErrorQuery (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_ErrorQuery (ViSession vi, 
         							   ViInt32* errorCode, 
         							   ViChar errorMessage[]);
 
-ViStatus _VI_FUNC WUN_ErrorMessage (ViSession vi, 
+ViStatus _VI_FUNC wupronet_ErrorMessage (ViSession vi, 
         								ViInt32 statusCode,
         								ViChar errorMessage[]);
 
-ViStatus _VI_FUNC  WUN_Reset (ViSession vi);
+ViStatus _VI_FUNC  wupronet_Reset (ViSession vi);
 
-ViStatus _VI_FUNC  WUN_RevisionQuery (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_RevisionQuery (ViSession vi, 
                                           ViChar instrumentDriverRevision[], 
                                           ViChar instrumentFirmwareRevision[]);
 
-ViStatus _VI_FUNC  WUN_SelfTest (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_SelfTest (ViSession vi, 
         							 ViInt32* selfTestResultCode, 
         							 ViChar selfTestResultMessage[]);
 

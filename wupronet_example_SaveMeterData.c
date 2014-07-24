@@ -15,8 +15,8 @@
 /*               select the Add Files To Project from the Edit menu of the   */
 /*               Project window.											 */
 /*            3) Add one of the following files to the project:				 */
-/*               WUN.fp, WUN.c, or WUN.lib.	     				 */
-/*            4) Check that the resource name used in WUN_initialize()	 */
+/*               wupronet.fp, wupronet.c, or wupronet.lib.	     		     */
+/*            4) Check that the resource name used in wupronet_initialize()	     */
 /*               is correct. If simulating, change flag to simulate.		 */
 /*            5) Run the project.											 */
 /*																			 */
@@ -33,7 +33,7 @@
 #include <ansi_c.h>
 #include <stdio.h>
 #include <userint.h>
-#include "WUN.h"
+#include "wupronet.h"
 
 /* -------------------------------------------------------------------------- */
 /* ================================= Macros ================================= */
@@ -53,30 +53,30 @@
 /* ============================== Pre-processors ============================ */
 /* -------------------------------------------------------------------------- */
 
-/* Change to match the resource name in WUN_initialize() */
-#define WUN_EXAMPLE_RESOURCE_ADDRESS "COM4"
+/* Change to match the resource name in wupronet_initialize() */
+#define wupronet_EXAMPLE_RESOURCE_ADDRESS "COM3"
 
 int main()
 {
-	ViSession WUN;
+	ViSession wupronet;
 	ViStatus status = VI_SUCCESS;
 	ViChar szMsg[1024] = {0};
 	ViInt32 RecordNum = 0;
 	void* Data;
 
 	/* Initialize */
-	CheckErr (WUN_Initialize(WUN_EXAMPLE_RESOURCE_ADDRESS,VI_TRUE,&WUN));
+	CheckErr (wupronet_Initialize(wupronet_EXAMPLE_RESOURCE_ADDRESS,VI_TRUE,&wupronet));
 
 	/* Read Data from meter */
-	CheckErr (WUN_ReadMeterData(WUN,&Data,&RecordNum));
+	CheckErr (wupronet_ReadMeterData(wupronet,&Data,&RecordNum));
 
 	/* Save Data to Log File */
-	CheckErr (WUN_SaveLogFile (WUN,"C:/WU.txt",Data,RecordNum));
+	CheckErr (wupronet_SaveLogFile (wupronet,"C:/WU.txt",Data,RecordNum));
 
 	/* Close */
-	CheckErr (WUN_Close(WUN));
+	CheckErr (wupronet_Close(wupronet));
 
-	/* Always free Data after using WUN_ReadMeterData */
+	/* Always free Data after using wupronet_ReadMeterData */
 	free(Data);
 
 	sprintf (szMsg, "Save Complete!\nYou may now exit.");
@@ -88,6 +88,7 @@ int main()
 Error:
     if (status != VI_SUCCESS)
     {
+    	/* Watts Up Meters don't support Error Query, so just print the status code. */
         ViChar  errMsg[256];
         sprintf(errMsg, "%d", status);
 
@@ -96,8 +97,8 @@ Error:
     #endif 
     }
     
-    if(WUN)
-        WUN_Close (WUN);
+    if(wupronet)
+        wupronet_Close (wupronet);
     
     return 0;
 }

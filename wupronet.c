@@ -12,17 +12,18 @@
  *
  *      07/14/2014  - Instrument Driver Created.
  ***************************************************************************************/
+#include <utility.h>
 #include <formatio.h>
 #include <visa.h>
 #include <ansi_c.h>
-#include "WUN.h"
+#include "wupronet.h"
 
 /*= DEFINES ===========================================================================*/
-#define WUN_REVISION			 "Rev 1.0, 07/2014, CVI 2012" /*  Instrument driver revision */
-#define WUN_BUFFER_SIZE		     1024L         			  	  /*  File I/O buffer size 	     */
-#define WUN_BAUD_RATE			 115200                       /*  Baud Rate                  */
-#define WUN_BUFFER_SIZE_LARGE    4096L                        /*  Large buffer size          */
-#define WUN_TMO_VALUE            10000                        /*  Timeout Value              */
+#define WUPRONET_REVISION			 "Rev 1.0, 07/2014, CVI 2012" /*  Instrument driver revision */
+#define WUPRONET_BUFFER_SIZE		     1024L         			  	  /*  File I/O buffer size 	     */
+#define WUPRONET_BAUD_RATE			 115200                       /*  Baud Rate                  */
+#define WUPRONET_BUFFER_SIZE_LARGE    4096L                        /*  Large buffer size          */
+#define WUPRONET_TMO_VALUE            10000                        /*  Timeout Value              */
 
 /*= MACROS ============================================================================*/
 		
@@ -51,26 +52,26 @@
 /***************************************************************************************/
 /*= INSTRUMENT-DEPENDENT STATUS/RANGE STRUCTURE  ======================================*/
 /***************************************************************************************/
-/* WUN_stringValPair is used in the WUN_errorMessage function				   */
+/* wupronet_stringValPair is used in the wupronet_errorMessage function				   */
 /*=====================================================================================*/
-typedef struct  WUN_stringValPair
+typedef struct  wupronet_stringValPair
 {
    ViStatus stringVal;
    ViString stringName;
-}  WUN_tStringValPair;
+}  wupronet_tStringValPair;
 
 
 /***************************************************************************************/
 /*= INSTRUMENT SPECIFIC UTILITY ROUTINE DECLARATIONS (Non-Exportable Functions) =======*/
 /***************************************************************************************/
-ViStatus WUN_DefaultInstrSetup (ViSession vi);
-ViStatus WUN_CheckStatus (ViSession vi);
-static ViBoolean WUN_InvalidViBooleanRange (ViBoolean val);
-static ViBoolean WUN_InvalidViInt32Range (ViInt32 val, ViInt32 min, ViInt32 max);
-static ViBoolean WUN_InvalidViReal64Range (ViReal64 val, ViReal64 min, ViReal64 max);
-static ViBoolean WUN_InvalidPtr (void* value);
-static ViStatus WUN_addRecords(ViInt32 size, ViInt32 data[][size], ViChar str[], ViInt32 index);
-static ViInt32 WUN_GetNthParameter(ViChar rdBuf[], ViInt32 n);
+ViStatus wupronet_DefaultInstrSetup (ViSession vi);
+ViStatus wupronet_CheckStatus (ViSession vi);
+static ViBoolean wupronet_InvalidViBooleanRange (ViBoolean val);
+static ViBoolean wupronet_InvalidViInt32Range (ViInt32 val, ViInt32 min, ViInt32 max);
+static ViBoolean wupronet_InvalidViReal64Range (ViReal64 val, ViReal64 min, ViReal64 max);
+static ViBoolean wupronet_InvalidPtr (void* value);
+static ViStatus wupronet_addRecords(ViInt32 size, ViInt32 data[][size], ViChar str[], ViInt32 index);
+static ViInt32 wupronet_GetNthParameter(ViChar rdBuf[], ViInt32 n);
 
 
 
@@ -79,7 +80,7 @@ static ViInt32 WUN_GetNthParameter(ViChar rdBuf[], ViInt32 n);
 /***************************************************************************************/
 
 /***************************************************************************************
- *Function: WUN_Initialize
+ *Function: wupronet_Initialize
  *Purpose:  Establishes communication with the instrument and optionally
             performs an instrument identification query and/or an
             instrument reset.  It also places the instrument in a default
@@ -88,7 +89,7 @@ static ViInt32 WUN_GetNthParameter(ViChar rdBuf[], ViInt32 n);
             instrument driver functions for this instrument.  Generally, you need to 
             call the Initialize function only once at the beginning of an application.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_Initialize (ViRsrc VISAResourceName,
+ViStatus _VI_FUNC  wupronet_Initialize (ViRsrc VISAResourceName,
         							   ViBoolean reset, 
         							   ViSession* vi)
 {
@@ -98,8 +99,8 @@ ViStatus _VI_FUNC  WUN_Initialize (ViRsrc VISAResourceName,
 	ViUInt16  interface = VI_INTF_ASRL;
 
 	/*- Check input parameter ranges ----------------------------------------*/
-	CheckParam (WUN_InvalidViBooleanRange(reset),VI_ERROR_PARAMETER2);
-	CheckParam (WUN_InvalidPtr(vi),VI_ERROR_PARAMETER3);
+	CheckParam (wupronet_InvalidViBooleanRange(reset),VI_ERROR_PARAMETER2);
+	CheckParam (wupronet_InvalidPtr(vi),VI_ERROR_PARAMETER3);
 
 	/*- Open instrument session ---------------------------------------------*/
     CheckErr (viOpenDefaultRM(&rmSession));
@@ -109,8 +110,8 @@ ViStatus _VI_FUNC  WUN_Initialize (ViRsrc VISAResourceName,
 	}
 	
 	/*- Configure VISA Formatted I/O ----------------------------------------*/
-    CheckErr (viSetAttribute(*vi, VI_ATTR_TMO_VALUE,WUN_TMO_VALUE));
-    CheckErr (viSetBuf(*vi, VI_READ_BUF|VI_WRITE_BUF,WUN_BUFFER_SIZE_LARGE));
+    CheckErr (viSetAttribute(*vi, VI_ATTR_TMO_VALUE,WUPRONET_TMO_VALUE));
+    CheckErr (viSetBuf(*vi, VI_READ_BUF|VI_WRITE_BUF,WUPRONET_BUFFER_SIZE_LARGE));
     CheckErr (viSetAttribute(*vi, VI_ATTR_WR_BUF_OPER_MODE,VI_FLUSH_ON_ACCESS));
     CheckErr (viSetAttribute(*vi, VI_ATTR_RD_BUF_OPER_MODE,VI_FLUSH_ON_ACCESS));
 	
@@ -124,8 +125,8 @@ ViStatus _VI_FUNC  WUN_Initialize (ViRsrc VISAResourceName,
 		CheckErr (viSetAttribute(*vi, VI_ATTR_TERMCHAR,0xA));
 		CheckErr (viSetAttribute(*vi, VI_ATTR_ASRL_END_OUT,VI_ASRL_END_TERMCHAR));
 		CheckErr (viSetAttribute(*vi, VI_ATTR_ASRL_END_IN,VI_ASRL_END_TERMCHAR));
-		CheckErr (viSetAttribute(*vi, VI_ATTR_ASRL_BAUD, WUN_BAUD_RATE));
-		CheckErr (viSetAttribute(*vi, VI_ATTR_ASRL_FLOW_CNTRL, VI_ASRL_FLOW_RTS_CTS));
+		CheckErr (viSetAttribute(*vi, VI_ATTR_ASRL_BAUD, WUPRONET_BAUD_RATE));
+		CheckErr (viSetAttribute(*vi, VI_ATTR_ASRL_FLOW_CNTRL, VI_ASRL_FLOW_NONE));
 		CheckErr (viSetAttribute(*vi, VI_ATTR_ASRL_PARITY, VI_ASRL_PAR_NONE));   
         CheckErr (viSetAttribute(*vi, VI_ATTR_ASRL_DATA_BITS,8));
         CheckErr (viSetAttribute(*vi, VI_ATTR_ASRL_STOP_BITS,VI_ASRL_STOP_ONE));
@@ -133,18 +134,18 @@ ViStatus _VI_FUNC  WUN_Initialize (ViRsrc VISAResourceName,
 	
     /*- Reset instrument ----------------------------------------------------*/
     if (reset)
-        CheckErr (WUN_Reset(*vi));
+        CheckErr (wupronet_Reset(*vi));
     else  /* - Send Default Instrument Setup --------------------------------- */
-        CheckErr (WUN_DefaultInstrSetup(*vi));   
+        CheckErr (wupronet_DefaultInstrSetup(*vi));   
 Error:
 	return status;
 }
 
 /***************************************************************************************
- *Function: WUN_Close
+ *Function: wupronet_Close
  *Purpose:  Takes the instrument offline.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_Close (ViSession vi)
+ViStatus _VI_FUNC  wupronet_Close (ViSession vi)
 {
 	/*Define local variables.*/
 	ViSession rmSession;
@@ -165,7 +166,7 @@ Error:
  * Purpose:  This function translates the error return value from the        
              instrument driver into a user-readable string.                  
  **************************************************************************************/
-ViStatus _VI_FUNC WUN_ErrorMessage (ViSession vi, 
+ViStatus _VI_FUNC wupronet_ErrorMessage (ViSession vi, 
 										ViInt32 statusCode,
         								ViChar errorMessage[])
 {
@@ -173,7 +174,7 @@ ViStatus _VI_FUNC WUN_ErrorMessage (ViSession vi,
     ViStatus status = VI_SUCCESS;
     ViInt32 i;
 
-    static WUN_tStringValPair statusDescArray[] = {
+    static wupronet_tStringValPair statusDescArray[] = {
     {VI_ERROR_PARAMETER1,                   "ERROR: Parameter 1 out of range" },
     {VI_ERROR_PARAMETER2,                   "ERROR: Parameter 2 out of range" },
     {VI_ERROR_PARAMETER3,                   "ERROR: Parameter 3 out of range" },
@@ -183,7 +184,7 @@ ViStatus _VI_FUNC WUN_ErrorMessage (ViSession vi,
     };
 
 	/*- Check input parameter ranges ----------------------------------------*/
-	CheckParam (WUN_InvalidPtr(errorMessage),VI_ERROR_PARAMETER3);
+	CheckParam (wupronet_InvalidPtr(errorMessage),VI_ERROR_PARAMETER3);
     
     status = viStatusDesc (vi,statusCode,errorMessage);
     if (status == VI_WARN_UNKNOWN_STATUS){
@@ -203,48 +204,48 @@ Error:
 }
 
 /***************************************************************************************
- *Function: WUN_Reset
+ *Function: wupronet_Reset
  *Purpose:  Resets the instrument and then sends a set of default setup
             commands to the instrument.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_Reset (ViSession vi)
+ViStatus _VI_FUNC  wupronet_Reset (ViSession vi)
 {
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
 
     /*  Initialize the instrument to a known state.  */
     CheckErr (viPrintf(vi, "#I,Z,0;"));
-    CheckErr (WUN_DefaultInstrSetup(vi));
-    CheckErr (WUN_CheckStatus(vi));
+    CheckErr (wupronet_DefaultInstrSetup(vi));
+    CheckErr (wupronet_CheckStatus(vi));
 Error:
     return status;
 }
 
 /***************************************************************************************
- *Function: WUN_RevisionQuery
+ *Function: wupronet_RevisionQuery
  *Purpose:  Queries the current instrument firmware revision and instrument
             driver revision. 
             Refer to the Readme file for detailed driver information including 
             modification history.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_RevisionQuery (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_RevisionQuery (ViSession vi, 
                                           ViChar instrumentDriverRevision[], 
                                           ViChar instrumentFirmwareRevision[])
 {
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
-    ViChar rdBuf[WUN_BUFFER_SIZE];
+    ViChar rdBuf[WUPRONET_BUFFER_SIZE];
     
     /*- Check input parameter ranges ----------------------------------------*/
-    CheckParam (WUN_InvalidPtr(instrumentDriverRevision),VI_ERROR_PARAMETER2);
-    CheckParam (WUN_InvalidPtr(instrumentFirmwareRevision),VI_ERROR_PARAMETER3);
+    CheckParam (wupronet_InvalidPtr(instrumentDriverRevision),VI_ERROR_PARAMETER2);
+    CheckParam (wupronet_InvalidPtr(instrumentFirmwareRevision),VI_ERROR_PARAMETER3);
 
     CheckErr (viQueryf(vi,"#V,R,0;","%s",rdBuf));
     strcpy (instrumentFirmwareRevision,rdBuf);
     instrumentFirmwareRevision[strlen(instrumentFirmwareRevision)-1] = '\0';
-    strcpy (instrumentDriverRevision,WUN_REVISION);
+    strcpy (instrumentDriverRevision,WUPRONET_REVISION);
 
-    CheckErr (WUN_CheckStatus(vi));
+    CheckErr (wupronet_CheckStatus(vi));
 
 Error:
     return status;
@@ -252,35 +253,35 @@ Error:
 
 
 /***************************************************************************************
- *Function: WUN_SelfTest
+ *Function: wupronet_SelfTest
  *Purpose:  Runs the instrument's self-test routine and returns the test
             results.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_SelfTest (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_SelfTest (ViSession vi, 
         							 ViInt32* selfTestResultCode, 
         							 ViChar selfTestResultMessage[])
 {
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
-    ViByte rdBuf[WUN_BUFFER_SIZE];
+    ViByte rdBuf[WUPRONET_BUFFER_SIZE];
 
     /*- Check input parameter ranges ----------------------------------------*/
-    CheckParam (WUN_InvalidPtr(selfTestResultCode),VI_ERROR_PARAMETER2);
-    CheckParam (WUN_InvalidPtr(selfTestResultMessage),VI_ERROR_PARAMETER3);
+    CheckParam (wupronet_InvalidPtr(selfTestResultCode),VI_ERROR_PARAMETER2);
+    CheckParam (wupronet_InvalidPtr(selfTestResultMessage),VI_ERROR_PARAMETER3);
 
     CheckErr (viQueryf(vi,"#T,T,1,1;","%s",rdBuf));
     Scan (rdBuf,"%s>%d",selfTestResultCode);
     Scan (rdBuf,"%s>%s",selfTestResultMessage);
-    CheckErr (WUN_CheckStatus(vi));
+    CheckErr (wupronet_CheckStatus(vi));
 Error:
     return status;		
 }
 
 /***************************************************************************************
- *Function: WUN_ConfigureUserParameters
+ *Function: wupronet_ConfigureUserParameters
  *Purpose:  Configures the rate, threshold and currency type for the Watts Up device.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_ConfigureUserParameters (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_ConfigureUserParameters (ViSession vi, 
                                                 ViInt32 rate,
                                                 ViInt32 threshold,
                                                 ViInt32 currency)
@@ -289,23 +290,23 @@ ViStatus _VI_FUNC  WUN_ConfigureUserParameters (ViSession vi,
     ViStatus status = VI_SUCCESS;
     
     /*- Check input parameter ranges ----------------------------------------*/
-    CheckParam (WUN_InvalidViInt32Range(rate,0,10),VI_ERROR_PARAMETER2);
-    CheckParam (WUN_InvalidViInt32Range(threshold,0,1999),VI_ERROR_PARAMETER3);
-    CheckParam (WUN_InvalidViInt32Range(currency,0,1),VI_ERROR_PARAMETER4);
+    CheckParam (wupronet_InvalidViInt32Range(rate,0,10000),VI_ERROR_PARAMETER2);
+    CheckParam (wupronet_InvalidViInt32Range(threshold,0,1999),VI_ERROR_PARAMETER3);
+    CheckParam (wupronet_InvalidViInt32Range(currency,0,1),VI_ERROR_PARAMETER4);
     
-    //printf("Sending Command: #U,W,3,%d,%d,%d;\n",rate*WUN_COST_RATE,threshold,currency);    
-    CheckErr (viPrintf(vi,"#U,W,3,%d,%d,%d;",rate*WUN_VAL_COST_RATE,threshold,currency));
-    CheckErr (WUN_CheckStatus(vi));
+    //printf("Sending Command: #U,W,3,%d,%d,%d;\n",rate*WUPRONET_COST_RATE,threshold,currency);    
+    CheckErr (viPrintf(vi,"#U,W,3,%d,%d,%d;",rate,threshold,currency));
+    CheckErr (wupronet_CheckStatus(vi));
 
 Error:
     return status;
 }
 
 /***************************************************************************************
- *Function: WUN_ConfigureDataLogging
+ *Function: wupronet_ConfigureDataLogging
  *Purpose:  Configure the logging type and the interval rate of the data capture for the Watts Up device.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_ConfigureDataLogging (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_ConfigureDataLogging (ViSession vi, 
                                                 ViInt32 loggingType,
                                                 ViInt32 interval)
 {
@@ -314,51 +315,51 @@ ViStatus _VI_FUNC  WUN_ConfigureDataLogging (ViSession vi,
     ViChar loggingName[2];
     
     /*- Check input parameter ranges ----------------------------------------*/
-    CheckParam (WUN_InvalidViInt32Range(loggingType,0,2),VI_ERROR_PARAMETER2);
-    CheckParam (WUN_InvalidViInt32Range(interval,0,86400),VI_ERROR_PARAMETER3);
+    CheckParam (wupronet_InvalidViInt32Range(loggingType,0,2),VI_ERROR_PARAMETER2);
+    CheckParam (wupronet_InvalidViInt32Range(interval,0,86400),VI_ERROR_PARAMETER3);
 
     switch(loggingType) {
-        case WUN_VAL_INTERNAL_LOG: strcpy(loggingName,"I");
+        case WUPRONET_VAL_INTERNAL_LOG: strcpy(loggingName,"I");
             break;
-        case WUN_VAL_EXTERNAL_LOG: strcpy(loggingName,"E");
+        case WUPRONET_VAL_EXTERNAL_LOG: strcpy(loggingName,"E");
             break;
-        case WUN_VAL_TCP_LOG: strcpy(loggingName,"T");
+        case WUPRONET_VAL_TCP_LOG: strcpy(loggingName,"T");
             break;
         default: strcpy(loggingName,"");
     }
       
     CheckErr (viPrintf(vi,"#L,W,3,%s,0,%d;",loggingName,interval));
-    CheckErr (WUN_CheckStatus(vi));
+    CheckErr (wupronet_CheckStatus(vi));
 
 Error:
     return status;
 }
 
 /***************************************************************************************
- *Function: WUN_ConfigureMemoryFullHandling
+ *Function: wupronet_ConfigureMemoryFullHandling
  *Purpose:  Determines how new data will be recorded once the internal memory has filled up.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_ConfigureMemoryFullHandling (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_ConfigureMemoryFullHandling (ViSession vi, 
                                                     ViInt32 policy)
 {
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
     
     /*- Check input parameter ranges ----------------------------------------*/
-    CheckParam (WUN_InvalidViInt32Range(policy,0,2),VI_ERROR_PARAMETER2);
+    CheckParam (wupronet_InvalidViInt32Range(policy,0,2),VI_ERROR_PARAMETER2);
         
     CheckErr (viPrintf(vi,"#O,W,1,%d;",policy));
-    CheckErr (WUN_CheckStatus(vi));
+    CheckErr (wupronet_CheckStatus(vi));
 
 Error:
     return status;
 }
 
 /***************************************************************************************
- *Function: WUN_ConfigureItemsToLog
+ *Function: wupronet_ConfigureItemsToLog
  *Purpose:  Configures which items will be recorded on the Watts Up internal memory.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_ConfigureItemsToLog (ViSession vi, ViBoolean Watts,
+ViStatus _VI_FUNC  wupronet_ConfigureItemsToLog (ViSession vi, ViBoolean Watts,
                                             ViBoolean Volts, ViBoolean Amps,
                                             ViBoolean Watt_Hours, ViBoolean Cost,
                                             ViBoolean Mo_Ave_KWhr, ViBoolean Mo_Ave_Cost,
@@ -378,148 +379,163 @@ ViStatus _VI_FUNC  WUN_ConfigureItemsToLog (ViSession vi, ViBoolean Watts,
                                                                                            Min_Volts,Min_Amps,Power_Factor,
                                                                                            Duty_Cycle,Power_Cycle,Line_Freq,
                                                                                            Volt_Amps));
-    CheckErr (WUN_CheckStatus(vi));
+    CheckErr (wupronet_CheckStatus(vi));
 
 Error:
     return status;
 }
 
 /***************************************************************************************
- *Function: WUN_ReadMeterData
+ *Function: wupronet_ReadMeterData
  *Purpose:  Reads all the data from the internal meter and stores it in Data.
             NOTE: If you use this function in an application remember to free Data when
             you are done with it.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_ReadMeterData (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_ReadMeterData (ViSession vi, 
                                         void** Data,
                                         ViInt32* RecordNum)
 {
 
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
-    ViChar rdBuf[WUN_BUFFER_SIZE];
+    ViChar rdBuf[WUPRONET_BUFFER_SIZE];
+    ViChar cancel[2] = {'\x18','\0'};
     ViInt32 size = 0;
     ViInt32 i;
 
     /* Get the record number */
-    WUN_ReadRecordNum(vi,&size);
+    wupronet_ReadRecordNum(vi,&size);
 
     /* If there are no records, return */
     if(size <= 0) return status;
 
-    ViInt32 readData[WUN_NUM_RECORDS][size];
+    ViInt32 readData[WUPRONET_NUM_RECORDS][size];
 
-    viClear(vi);
+    /* Make sure the transfer requests have been cleared */
+    CheckErr(viPrintf(vi,"%s",cancel));
+    Delay(1);
+    CheckErr(viClear(vi));
 
     /* Check if we get the correct header */
     CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
+    if(!strcmp(rdBuf,"")) return WUPRONET_ERROR_EXECUTION_ERROR;
 
-    /* Gaurantee that we will get all the data */
+    /* Gaurantee that we will get all the data, this is a last resort loop in case the meter is still */
+    /* sending data from a previous #D,R,0; request.                                                  */
     while(rdBuf[1] != 'n') {
         viQueryf(vi,"#D,R,0;","%s",rdBuf);
-        if(!strcmp(rdBuf,"")) return WUN_ERROR_EXECUTION_ERROR;
     }
 
     /* Parse each record and store it into readData */
     for(i = 0; i < size; i++) {
         CheckErr(viQueryf(vi,"#D,R,0;","%s",rdBuf));
-        CheckErr(WUN_addRecords(size, readData,rdBuf,i));
+        CheckErr(wupronet_addRecords(size, readData,rdBuf,i));
     }
 
     /* Copy data off the stack into heap memory */
-    *Data = malloc(sizeof(ViInt32)*WUN_NUM_RECORDS*size);
-    memcpy(*Data,&readData,sizeof(ViInt32)*WUN_NUM_RECORDS*size);
+    *Data = malloc(sizeof(ViInt32)*WUPRONET_NUM_RECORDS*size);
+    memcpy(*Data,&readData,sizeof(ViInt32)*WUPRONET_NUM_RECORDS*size);
     *RecordNum = size;
 
-    CheckErr (WUN_CheckStatus(vi));
+    CheckErr (wupronet_CheckStatus(vi));
 
 Error:
     return status;
 }
 
 /***************************************************************************************
- *Function: WUN_ReadRecordNum
+ *Function: wupronet_ReadRecordNum
  *Purpose:  Reads the number of records in the Watts Up internal memory. Error handling
             has been disabled for viRead performance, but this function gaurantees success.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_ReadRecordNum (ViSession vi,
+ViStatus _VI_FUNC  wupronet_ReadRecordNum (ViSession vi,
                                         ViInt32* RecordNum)
 {
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
-    ViChar rdBuf[WUN_BUFFER_SIZE];
+    ViChar rdBuf[WUPRONET_BUFFER_SIZE];
     ViChar cancel[2] = {'\x18','\0'};
 
-    viClear(vi);
+    /* Make sure the transfer requests have been cleared */
+    CheckErr(viPrintf(vi,"%s",cancel));
+    Delay(1);
+    CheckErr(viClear(vi));
 
     /* Header that contains number of records (size) */
     viQueryf(vi,"#D,R,0;","%s",rdBuf);
+    if(!strcmp(rdBuf,"")) return WUPRONET_ERROR_EXECUTION_ERROR;
 
-    /* Gaurantee that we will get all the data*/
+    /* Gaurantee that we will get all the data, this is a last resort loop in case the meter is still */
+    /* sending data from a previous #D,R,0; request.                                                  */
     while(rdBuf[1] != 'n') {
         viQueryf(vi,cancel,"%s",rdBuf);
         viQueryf(vi,"#D,R,0;","%s",rdBuf);
-        if(!strcmp(rdBuf,"")) return WUN_ERROR_EXECUTION_ERROR;
     }
 
-    *RecordNum = WUN_GetNthParameter(rdBuf,WUN_VAL_RECORD_NUM);
+    *RecordNum = wupronet_GetNthParameter(rdBuf,WUPRONET_VAL_RECORD_NUM);
 
+Error:
     return status;
 
 }
 
 /***************************************************************************************
- *Function: WUN_ReadInterval
+ *Function: wupronet_ReadInterval
  *Purpose:  Reads the current recording interval from the Watts Up device. Error handling
             has been disabled for viRead performance, but this function gaurantees success.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_ReadInterval (ViSession vi,
+ViStatus _VI_FUNC  wupronet_ReadInterval (ViSession vi,
                                     ViInt32* Interval)
 {
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
-    ViChar rdBuf[WUN_BUFFER_SIZE];
+    ViChar rdBuf[WUPRONET_BUFFER_SIZE];
     ViChar cancel[2] = {'\x18','\0'};
 
-    viClear(vi);
+    /* Make sure the transfer requests have been cleared */
+    CheckErr(viPrintf(vi,"%s",cancel));
+    Delay(1);
+    CheckErr(viClear(vi));
 
     viQueryf(vi,"#S,R,0;","%s",rdBuf);
+    if(!strcmp(rdBuf,"")) return WUPRONET_ERROR_EXECUTION_ERROR;
 
-    /* Gaurantee that we will get all the data */
+    /* Gaurantee that we will get all the data, this is a last resort loop in case the meter is still */
+    /* sending data from a previous #D,R,0; request.                                                  */
     while(rdBuf[1] != 's') {
         viQueryf(vi,cancel,"%s",rdBuf);
         viQueryf(vi,"#S,R,0;","%s",rdBuf);
-        if(!strcmp(rdBuf,"")) return WUN_ERROR_EXECUTION_ERROR;
     }
 
-    *Interval = WUN_GetNthParameter(rdBuf,WUN_VAL_INTERVAL);
+    *Interval = wupronet_GetNthParameter(rdBuf,WUPRONET_VAL_INTERVAL);
 
+Error:
     return status;
 
 }
 
 /***************************************************************************************
- *Function: WUN_ResetMeterData
+ *Function: wupronet_ResetMeterData
  *Purpose:  Clears all the data from internal memory.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_ResetMeterData (ViSession vi)
+ViStatus _VI_FUNC  wupronet_ResetMeterData (ViSession vi)
 {
     /*Define local variables.*/
     ViStatus status = VI_SUCCESS;
        
     CheckErr (viPrintf(vi,"#R,W,0;"));
-    CheckErr (WUN_CheckStatus(vi));
+    CheckErr (wupronet_CheckStatus(vi));
 
 Error:
     return status;
 }
 
 /***************************************************************************************
- *Function: WUN_SaveLogFile
+ *Function: wupronet_SaveLogFile
  *Purpose:  Saves the internal meter data to a file that is recognized by other Watts Up
             software and programs.
  ***************************************************************************************/
-ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi, 
+ViStatus _VI_FUNC  wupronet_SaveLogFile (ViSession vi, 
                                     ViChar Path[],
                                     void* Data,
                                     ViInt32 RecordNum)
@@ -536,7 +552,7 @@ ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi,
     ViInt32 j = 0;
     
     /* Manual error checking, because goto statements would skip initialization of newData[][] */
-    if((status = WUN_ReadInterval(vi,&Interval))) return status;
+    if((status = wupronet_ReadInterval(vi,&Interval))) return status;
 
     /* Get the data from Data which is a void* and put it into a usuable array */
     ViInt32 newData[18][RecordNum];
@@ -546,7 +562,7 @@ ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi,
     FILE* fp = fopen(Path,"w+");
     fprintf(fp, "%s\n", "Time\tWatts\tVolts\tAmps\tWattHrs\tCost\tAvg Kwh\tMo Cost\tMax Wts\tMax Vlt\tMax Amp\tMin Wts\tMin Vlt\tMin Amp\tPwr Fct\tDty Cyc\tPwr Cyc\n");
     for(i = 0; i < RecordNum; i++) {
-        Time = i*((ViReal64)Interval/(ViReal64)WUN_DAY_IN_SECONDS);
+        Time = i*((ViReal64)Interval/(ViReal64)WUPRONET_DAY_IN_SECONDS);
         fprintf(fp, "%.8f\t", Time);
         for(j = 0; j < 18; j++) {
             if(j == 17) sprintf(format, "%%.%df",formats[j]);
@@ -558,7 +574,7 @@ ViStatus _VI_FUNC  WUN_SaveLogFile (ViSession vi,
     fprintf(fp, "%s", subChar);
     fclose(fp);
 
-    CheckErr (WUN_CheckStatus(vi));
+    CheckErr (wupronet_CheckStatus(vi));
 
 Error:
     return status;
@@ -570,7 +586,7 @@ Error:
 /*           If the value is out of range, the return value is VI_TRUE, otherwise the return     */
 /*           the return value is VI_FALSE.                                                       */
 /*************************************************************************************************/
-static ViBoolean WUN_InvalidViBooleanRange (ViBoolean val)
+static ViBoolean wupronet_InvalidViBooleanRange (ViBoolean val)
 {
     return ((val != VI_FALSE && val != VI_TRUE) ? VI_TRUE : VI_FALSE);
 }
@@ -581,7 +597,7 @@ static ViBoolean WUN_InvalidViBooleanRange (ViBoolean val)
 /*           minimum and maximum value.  If the value is out of range, the return value is       */
 /*           VI_TRUE, otherwise the return value is VI_FALSE.                                    */
 /*************************************************************************************************/
-static ViBoolean WUN_InvalidViInt32Range (ViInt32 val, ViInt32 min, ViInt32 max)
+static ViBoolean wupronet_InvalidViInt32Range (ViInt32 val, ViInt32 min, ViInt32 max)
 {
     return ((val < min || val > max) ? VI_TRUE : VI_FALSE);
 }
@@ -592,7 +608,7 @@ static ViBoolean WUN_InvalidViInt32Range (ViInt32 val, ViInt32 min, ViInt32 max)
 /*           and maximum value.  If the value is out of range, the return value is VI_TRUE,      */
 /*           otherwise the return value is VI_FALSE.                                             */
 /*************************************************************************************************/
-static ViBoolean WUN_InvalidViReal64Range (ViReal64 val, ViReal64 min, ViReal64 max)
+static ViBoolean wupronet_InvalidViReal64Range (ViReal64 val, ViReal64 min, ViReal64 max)
 {
     return ((val < min || val > max) ? VI_TRUE : VI_FALSE);
 }
@@ -603,7 +619,7 @@ static ViBoolean WUN_InvalidViReal64Range (ViReal64 val, ViReal64 min, ViReal64 
 /*           If the value is VI_NULL, the return value is VI_TRUE, otherwise the return value    */
 /*           is VI_FALSE.                                                                        */
 /*************************************************************************************************/
-static ViBoolean WUN_InvalidPtr (void *value)
+static ViBoolean wupronet_InvalidPtr (void *value)
 {
     return ((value == VI_NULL) ? VI_TRUE : VI_FALSE);
 }
@@ -611,7 +627,7 @@ static ViBoolean WUN_InvalidPtr (void *value)
 /*************************************************************************************************/
 /* Function: Add records from str[] into data[][]                                                */
 /*************************************************************************************************/
-static ViStatus WUN_addRecords(ViInt32 size, ViInt32 data[][size], ViChar str[], ViInt32 index) {
+static ViStatus wupronet_addRecords(ViInt32 size, ViInt32 data[][size], ViChar str[], ViInt32 index) {
     ViStatus status = VI_SUCCESS;
 
     ViChar * entry;
@@ -637,7 +653,7 @@ Error:
 /* Purpose:  This function parses the specified parameter from the rdBuf[] and returns that      */
 /*           value.                                                                              */
 /*************************************************************************************************/
-static ViInt32 WUN_GetNthParameter(ViChar rdBuf[], ViInt32 n) {
+static ViInt32 wupronet_GetNthParameter(ViChar rdBuf[], ViInt32 n) {
     ViInt32 val = 0;
     ViInt32 count = 0;
     ViChar * entry = strtok(rdBuf," ,;");
@@ -660,12 +676,12 @@ static ViInt32 WUN_GetNthParameter(ViChar rdBuf[], ViInt32 n) {
 /*****************************************************************************************************/
 /* Function: Default Instrument Setup                                                                */
 /* Purpose:  This function sends a default setup to the instrument.  This function is called by      */
-/*           the WUN_reset operation and by the WUN_init function if the reset option has    */
+/*           the wupronet_reset operation and by the wupronet_init function if the reset option has    */
 /*           not been selected.  This function is useful for configuring any  instrument settings    */
 /*           that are required by the rest of the  instrument driver functions such as turning       */
 /*           headers ON or OFF or using the long or short form for commands, queries, and data.      */
 /*****************************************************************************************************/
-ViStatus WUN_DefaultInstrSetup (ViSession instrSession)
+ViStatus wupronet_DefaultInstrSetup (ViSession instrSession)
 {
     ViStatus status = VI_SUCCESS;
 
@@ -673,34 +689,32 @@ ViStatus WUN_DefaultInstrSetup (ViSession instrSession)
 }
 
 /***************************************************************************************
- * Function: WUN_CheckStatus
+ * Function: wupronet_CheckStatus
  *
  * Purpose:  This function check if there is command error or command execution error by
  *           check the Event Status Register of the instrument.
  ***************************************************************************************/
-ViStatus WUN_CheckStatus (ViSession vi)
+ViStatus wupronet_CheckStatus (ViSession vi)
 {
     ViStatus    status = VI_SUCCESS;
     ViUInt32    esrValue = 0;
 
-    //CheckErr (viQueryf(vi, "*ESR?\n", "%d", &esrValue));
-
     /*---------------- Check if any error or message bit was asserted -------*/
-    if ((esrValue & WUN_ESR_QUERY_ERROR) != 0)
+    if ((esrValue & WUPRONET_ESR_QUERY_ERROR) != 0)
     {
-        CheckErr (WUN_ESR_QUERY_ERROR);
+        CheckErr (WUPRONET_ESR_QUERY_ERROR);
     }
-    if ((esrValue & WUN_ESR_DEVICE_DEPENDENT_ERROR) != 0)
+    if ((esrValue & WUPRONET_ESR_DEVICE_DEPENDENT_ERROR) != 0)
     {
-        CheckErr (WUN_ERROR_DEVICE_DEPENDENT_ERROR);
+        CheckErr (WUPRONET_ERROR_DEVICE_DEPENDENT_ERROR);
     }
-    if ((esrValue & WUN_ESR_EXECUTION_ERROR) != 0)
+    if ((esrValue & WUPRONET_ESR_EXECUTION_ERROR) != 0)
     {
-        CheckErr (WUN_ERROR_EXECUTION_ERROR);
+        CheckErr (WUPRONET_ERROR_EXECUTION_ERROR);
     } 
-    if ((esrValue & WUN_ESR_COMMAND_ERROR) != 0)
+    if ((esrValue & WUPRONET_ESR_COMMAND_ERROR) != 0)
     {
-        CheckErr (WUN_ERROR_COMMAND_ERROR);
+        CheckErr (WUPRONET_ERROR_COMMAND_ERROR);
     }
 
 Error:
