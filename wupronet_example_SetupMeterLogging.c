@@ -3,7 +3,7 @@
 /*****************************************************************************/
 
 /*****************************************************************************/
-/*  Watts Up .Net Watt Meter            									 */
+/*  Watts Up PRO .Net Series Watt Meter             						 */
 /*  Developed with LabWindows/CVI 2013										 */
 /*  Original Release: July 2014 											 */
 /*																			 */

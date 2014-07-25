@@ -3,7 +3,7 @@
 /*****************************************************************************/
 
 /*****************************************************************************/
-/*  Watts Up .Net Watt Meter            									 */
+/*  Watts Up PRO .Net Series Watt Meter            						     */
 /*  Developed with LabWindows/CVI 2013										 */
 /*  Original Release: July 2014 											 */
 /*																			 */
@@ -16,7 +16,7 @@
 /*               Project window.											 */
 /*            3) Add one of the following files to the project:				 */
 /*               wupronet.fp, wupronet.c, or wupronet.lib.	     		     */
-/*            4) Check that the resource name used in wupronet_initialize()	     */
+/*            4) Check that the resource name used in wupronet_initialize()	 */
 /*               is correct. If simulating, change flag to simulate.		 */
 /*            5) Run the project.											 */
 /*																			 */

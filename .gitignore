@@ -1,3 +1,4 @@
-cvibuild.WUN/Debug/*.*
-cvibuild.WUN/Debug/
-WUN.dll
+cvibuild.*/Debug/*.*
+cvibuild.*/Debug/
+*.dll
+msvc/*.*
