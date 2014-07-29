@@ -38,9 +38,9 @@ extern "C" {
 /***************************************************************************************/
 #define VI_WARNING_INSTR_OFFSET						           (0x3FFC0900L)
 #define VI_ERROR_INSTR_OFFSET						           (_VI_ERROR+0x3FFC0900L)
-#define WUPRONET_ERROR_DEVICE_DEPENDENT_ERROR                   (VI_ERROR_INSTR_OFFSET + 0x10L)
-#define WUPRONET_ERROR_EXECUTION_ERROR                          (VI_ERROR_INSTR_OFFSET + 0x20L)
-#define WUPRONET_ERROR_COMMAND_ERROR                            (VI_ERROR_INSTR_OFFSET + 0x30L)
+#define WUPRONET_ERROR_DEVICE_DEPENDENT_ERROR                  (VI_ERROR_INSTR_OFFSET + 0x10L)
+#define WUPRONET_ERROR_EXECUTION_ERROR                         (VI_ERROR_INSTR_OFFSET + 0x20L)
+#define WUPRONET_ERROR_COMMAND_ERROR                           (VI_ERROR_INSTR_OFFSET + 0x30L)
 
 /***************************************************************************************/
 /*= INSTRUMENT CONSTANTS ==============================================================*/
@@ -51,13 +51,12 @@ extern "C" {
 #define WUPRONET_ESR_DEVICE_DEPENDENT_ERROR                      	0x08
 #define WUPRONET_ESR_EXECUTION_ERROR                             	0x10
 #define WUPRONET_ESR_COMMAND_ERROR                               	0x20
-#define WUPRONET_BAUD_RATE                                       	0x1C200
-#define WUPRONET_NUM_RECORDS                                         0x12
+#define WUPRONET_NUM_RECORDS                                        0x12
 
 /* Configure Data Logging*/
 #define WUPRONET_VAL_INTERNAL_LOG					                0x00
-#define WUPRONET_VAL_EXTERNAL_LOG                                    0x01
-#define WUPRONET_VAL_TCP_LOG						                    0x02	
+#define WUPRONET_VAL_EXTERNAL_LOG                                   0x01
+#define WUPRONET_VAL_TCP_LOG						                0x02	
 
 /* Read Interval */
 #define WUPRONET_VAL_INTERVAL					                    0x05

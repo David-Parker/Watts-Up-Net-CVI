@@ -21,7 +21,7 @@
 /*= DEFINES ===========================================================================*/
 #define WUPRONET_REVISION			 "Rev 1.0, 07/2014, CVI 2012" /*  Instrument driver revision */
 #define WUPRONET_BUFFER_SIZE		  1024L         			  /*  File I/O buffer size 	     */
-#define WUPRONET_BAUD_RATE			 115200                       /*  Baud Rate                  */
+#define WUPRONET_BAUD_RATE			  115200                      /*  Baud Rate                  */
 #define WUPRONET_BUFFER_SIZE_LARGE    4096L                       /*  Large buffer size          */
 #define WUPRONET_TMO_VALUE            10000                       /*  Timeout Value              */
 
@@ -197,9 +197,9 @@ ViStatus _VI_FUNC wupronet_ErrorMessage (ViSession vi,
 		sprintf (errorMessage,"Unknown Error 0x%x", statusCode);
 		return VI_WARN_UNKNOWN_STATUS;
    }
+status = VI_SUCCESS;
 
 Error:
-   status = VI_SUCCESS;
    return status;
 }
 
@@ -293,8 +293,7 @@ ViStatus _VI_FUNC  wupronet_ConfigureUserParameters (ViSession vi,
 	CheckParam (wupronet_InvalidViInt32Range(rate,0,10000),VI_ERROR_PARAMETER2);
 	CheckParam (wupronet_InvalidViInt32Range(threshold,0,1999),VI_ERROR_PARAMETER3);
 	CheckParam (wupronet_InvalidViInt32Range(currency,0,1),VI_ERROR_PARAMETER4);
-	
-	//printf("Sending Command: #U,W,3,%d,%d,%d;\n",rate*WUPRONET_COST_RATE,threshold,currency);    
+	  
 	CheckErr (viPrintf(vi,"#U,W,3,%d,%d,%d;",rate,threshold,currency));
 	CheckErr (wupronet_CheckStatus(vi));
 
@@ -542,8 +541,8 @@ ViStatus _VI_FUNC  wupronet_SaveLogFile (ViSession vi,
 {
 	/*Define local variables.*/
 	ViStatus status = VI_SUCCESS;
-	ViInt32 formats[18] = {2,3,3,2,3,2,3,2,2,3,2,3,3,1,1,1,1,3};
-	ViReal64 percents[18] = {10,10,1000,10,1000,1000,1000,10,10,1000,10,10,1000,1,1,1,10,10};
+	ViInt32 formats[WUPRONET_NUM_RECORDS] = {2,3,3,2,3,2,3,2,2,3,2,3,3,1,1,1,1,3};
+	ViReal64 percents[WUPRONET_NUM_RECORDS] = {10,10,1000,10,1000,1000,1000,10,10,1000,10,10,1000,1,1,1,10,10};
 	ViChar format[64];
 	ViChar subChar[2] = {'\x1A','\0'};
 	ViInt32 Interval = 0;
@@ -555,8 +554,8 @@ ViStatus _VI_FUNC  wupronet_SaveLogFile (ViSession vi,
 	if((status = wupronet_ReadInterval(vi,&Interval))) return status;
 
 	/* Get the data from Data which is a void* and put it into a usuable array */
-	ViInt32 newData[18][RecordNum];
-	memcpy(newData,(ViInt32*)Data,sizeof(ViInt32)*18*RecordNum);
+	ViInt32 newData[WUPRONET_NUM_RECORDS][RecordNum];
+	memcpy(newData,(ViInt32*)Data,sizeof(ViInt32)*WUPRONET_NUM_RECORDS*RecordNum);
 
 	/* Output the data in the exact format as Watts Up USB software */
 	FILE* fp = fopen(Path,"w+");
@@ -564,8 +563,8 @@ ViStatus _VI_FUNC  wupronet_SaveLogFile (ViSession vi,
 	for(i = 0; i < RecordNum; i++) {
 		Time = i*((ViReal64)Interval/(ViReal64)WUPRONET_DAY_IN_SECONDS);
 		fprintf(fp, "%.8f\t", Time);
-		for(j = 0; j < 18; j++) {
-			if(j == 17) sprintf(format, "%%.%df",formats[j]);
+		for(j = 0; j < WUPRONET_NUM_RECORDS; j++) {
+			if(j == WUPRONET_NUM_RECORDS - 1) sprintf(format, "%%.%df",formats[j]);
 			else sprintf(format, "%%.%df\t",formats[j]);
 			fprintf(fp, format, (ViReal32)(newData[j][i]/percents[j]));
 		}
@@ -579,6 +578,19 @@ ViStatus _VI_FUNC  wupronet_SaveLogFile (ViSession vi,
 Error:
 	return status;
 }
+
+/*****************************************************************************/
+/*----------- INSERT INSTRUMENT-DEPENDENT UTILITY ROUTINES HERE -------------*/
+/*****************************************************************************/
+
+/*****************************************************************************************************/
+/* Function: Default Instrument Setup                                                                */
+/* Purpose:  This function sends a default setup to the instrument.  This function is called by      */
+/*           the wupronet_reset operation and by the wupronet_init function if the reset option has    */
+/*           not been selected.  This function is useful for configuring any  instrument settings    */
+/*           that are required by the rest of the  instrument driver functions such as turning       */
+/*           headers ON or OFF or using the long or short form for commands, queries, and data.      */
+/*****************************************************************************************************/
 
 /*************************************************************************************************/
 /* Function: Boolean Value Out Of Range - ViBoolean                                              */
@@ -669,19 +681,6 @@ static ViInt32 wupronet_GetNthParameter(ViChar rdBuf[], ViInt32 n) {
 	return val;
 }
 
-
-/*****************************************************************************/
-/*----------- INSERT INSTRUMENT-DEPENDENT UTILITY ROUTINES HERE -------------*/
-/*****************************************************************************/
-
-/*****************************************************************************************************/
-/* Function: Default Instrument Setup                                                                */
-/* Purpose:  This function sends a default setup to the instrument.  This function is called by      */
-/*           the wupronet_reset operation and by the wupronet_init function if the reset option has    */
-/*           not been selected.  This function is useful for configuring any  instrument settings    */
-/*           that are required by the rest of the  instrument driver functions such as turning       */
-/*           headers ON or OFF or using the long or short form for commands, queries, and data.      */
-/*****************************************************************************************************/
 ViStatus wupronet_DefaultInstrSetup (ViSession instrSession)
 {
 	ViStatus status = VI_SUCCESS;
